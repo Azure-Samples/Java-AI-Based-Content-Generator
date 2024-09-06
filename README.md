@@ -1,57 +1,30 @@
-# Project Name
+# Content Generator for Marketing Purposes
 
-(short, 1-3 sentenced, description of the project)
+This repository contains the "Content Generator for Marketing Campaign", a multi-application system designed to generate marketing content based on user selection. The system consists of three separate applications:
 
-## Features
+1. **Backend**: Handles data management and stores content templates.
+2. **Middleware**: Provides AI services for content generation.
+3. **Frontend**: A user interface that allows users to generate content by selecting the type (e.g., mail template campaign, social media campaign, article/blog).
 
-This project framework provides the following features:
+## Applications Overview
 
-* Feature 1
-* Feature 2
-* ...
+- [Backend Application](backend): Manages data, including storing and retrieving content templates.
+- [Middleware Application](middleware): Interfaces with AI services to generate content based on user input.
+- [Frontend Application](frontend): Provides a user-friendly interface for selecting content types and generating marketing materials.
 
 ## Getting Started
 
-### Prerequisites
+Each application has its own setup instructions and dependencies. Refer to the respective README file in each folder for more details.
 
-(ideally very short, if any)
+### Backend
 
-- OS
-- Library version
-- ...
+- Navigate to the [backend README](backend/README.md) for data management setup and instructions.
 
-### Installation
+### Middleware
 
-(ideally very short)
+- Navigate to the [middleware README](middleware/README.md) for AI services setup and instructions.
 
-- npm install [package name]
-- mvn install
-- ...
+### Frontend
 
-### Quickstart
-(Add steps to get up and running quickly)
+- Navigate to the [frontend README](frontend/README.md) for UI setup and instructions, allowing users to select content types and generate marketing materials.
 
-1. git clone [repository clone url]
-2. cd [repository name]
-3. ...
-
-
-## Demo
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...

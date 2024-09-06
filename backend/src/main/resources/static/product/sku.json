@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Radiant Glow Day Cream",
+    "description": "A nourishing day cream that hydrates and brightens your skin.",
+    "sku": "RGDC001",
+    "prices": [
+      {
+        "currencyCode": "USD",
+        "value": 49.99
+      },
+      {
+        "currencyCode": "EUR",
+        "value": 44.99
+      }
+    ]
+  },
+  {
+    "name": "Radiant Glow Night Cream",
+    "description": "A rejuvenating night cream that restores skin while you sleep.",
+    "sku": "RGNC002",
+    "prices": [
+      {
+        "currencyCode": "USD",
+        "value": 54.99
+      },
+      {
+        "currencyCode": "GBP",
+        "value": 39.99
+      }
+    ]
+  },
+  {
+    "name": "Radiant Glow Sun Care",
+    "description": "A protective sun care lotion that shields skin from harmful UV rays.",
+    "sku": "RGSC003",
+    "prices": [
+      {
+        "currencyCode": "USD",
+        "value": 29.99
+      },
+      {
+        "currencyCode": "AUD",
+        "value": 39.99
+      }
+    ]
+  }
+]

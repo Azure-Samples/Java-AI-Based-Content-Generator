@@ -1,0 +1,482 @@
+@font-face {
+  font-family: "AbhayaLibre";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/Abhaya_Libre/AbhayaLibre-Regular.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: "AbhayaLibreB";
+  font-style: bold;
+  font-weight: 500;
+  src: url("./assets/fonts/Abhaya_Libre/AbhayaLibre-Bold.ttf") format("ttf");
+}
+
+@font-face {
+  font-family: "Segoeui";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/segoeui/Segoe_UI.woff") format("woff");
+}
+
+@font-face {
+  font-family: "SegoeuiB";
+  font-style: bold;
+  font-weight: 500;
+  src: url("./assets/fonts/segoeui/Segoe_UI_Bold.woff") format("woff");
+}
+
+:root {
+  --greenDark: rgba(12, 38, 30, 1);
+  --green: rgba(2, 127, 79, 1);
+  --yellow: rgba(242, 189, 55, 1);
+  --gray: rgba(236, 234, 230, 1);
+  --gray-2: rgba(0, 0, 0, 0.23);
+  --black: rgba(0, 0, 0, 1);
+  --white: #ffffff;
+  --font: "Segoeui";
+  --fontB: "SegoeuiB";
+  --Abhaya: "AbhayaLibre";
+  --AbhayaB: "AbhayaLibreB";
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: normal;
+}
+
+body {
+  background-color: var(--greenDark);
+  font-family: var(--font);
+  color: var(--white);
+  letter-spacing: 1px;
+  padding-top: 90px;
+  padding-bottom: 171px;
+}
+img {
+  max-width: 100%;
+}
+
+// loader
+/* HTML: <div class="loader"></div> */
+.loader {
+  display: inline-block;
+  width: 30px;
+  aspect-ratio: 4;
+  background: radial-gradient(circle closest-side, #fff 90%, #0000) 0 /
+    calc(100% / 3) 100% space;
+  clip-path: inset(0 100% 0 0);
+  animation: l1 1s steps(4) infinite;
+}
+@keyframes l1 {
+  to {
+    clip-path: inset(0 -34% 0 0);
+  }
+}
+
+// header
+.headerMain {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: var(--black);
+  display: flex;
+  justify-content: space-between;
+  z-index: 99;
+  .MuiContainer-root {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .MuiButtonBase-root {
+    background-color: var(--yellow);
+    border: 2px solid var(--gray);
+    font-size: 0.7rem;
+    width: 35px;
+    height: 35px;
+    padding-bottom: 1px;
+    padding-top: 2px;
+    font-family: var(--fontB);
+    &:hover {
+      background-color: var(--yellow);
+      border-color: var(--yellow);
+    }
+  }
+}
+
+// landing page
+.landingPage {
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  h1 {
+    font-family: var(--Abhaya);
+    font-size: 3rem;
+  }
+}
+
+// Email
+.emailMarkdown {
+  > p:first-child {
+    font-style: italic;
+    & + hr {
+      display: none;
+    }
+  }
+  strong {
+    font-weight: normal;
+    font-family: var(--fontB);
+  }
+  ul {
+    font-size: 0.9rem;
+  }
+  a {
+    color: var(--yellow);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  h3,
+  h4 {
+    margin-top: 0;
+    margin-bottom: 1.3rem;
+  }
+  h1 {
+    margin-top: 0;
+    font-size: 1.3rem;
+  }
+}
+
+// blog
+.responseChat {
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid #5d5d5d;
+  &:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+.userText {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3rem;
+  .userIcon {
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
+    line-height: 45px;
+    border-radius: 50%;
+    border: 2px solid var(--gray);
+    background-color: var(--yellow);
+    text-align: center;
+    font-family: var(--fontB);
+    color: var(--black);
+    font-size: 1.2rem;
+    margin-right: 1rem;
+  }
+}
+.aiResponse {
+  display: flex;
+  .responseAI {
+    width: 100%;
+  }
+  .aiIcon {
+    width: 45px;
+    min-width: 45px;
+    margin-right: 1rem;
+    text-align: center;
+  }
+  p {
+    margin-top: 0;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  h5 {
+    font-size: 1.1rem;
+    margin-top: 1.7rem;
+    margin-bottom: 0.5rem;
+    font-family: var(--fontB);
+  }
+  .resPara {
+    font-style: italic;
+    color: var(--gray);
+  }
+  .copyResponse {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    h5 {
+      font-size: 1.2rem;
+      max-width: 70%;
+      margin-top: 0;
+    }
+    .copyBtn {
+      font-size: 0.7rem;
+      border-color: var(--white);
+      color: var(--white);
+      border-radius: 12px;
+      padding: 5px 23px;
+      svg {
+        width: 1rem;
+        height: auto;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  .blogResponse {
+    img {
+      float: left;
+      width: 39%;
+      margin-right: 3%;
+      margin-bottom: 1rem;
+    }
+    ul {
+      font-size: 0.9rem;
+      li {
+        margin-bottom: 0.8rem;
+      }
+    }
+  }
+  .emailResponse {
+    background-color: var(--white);
+    color: var(--black);
+    border-radius: 15px;
+    padding: 1rem;
+    width: 50%;
+    margin: auto;
+    h4 {
+      background-color: var(--green);
+      color: var(--white);
+      margin-top: 0;
+      font-size: 1.7rem;
+      padding: 2rem;
+      font-family: var(--fontB);
+      text-align: center;
+      border-radius: 15px 15px 0 0;
+    }
+    h5 {
+    }
+  }
+  .shopBtn {
+    width: 100%;
+    background-color: var(--green);
+    padding: 0.7rem;
+    margin-top: 1rem;
+    &:hover {
+      background-color: var(--green);
+      opacity: 0.9;
+    }
+  }
+  .mediaResponse {
+    background-color: var(--white);
+    width: 55%;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: var(--black);
+    margin: auto;
+  }
+}
+
+// chatBox
+.chatContainer {
+  .chatBox {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    border-radius: 37px;
+    .chatDropdown {
+      padding-left: 2rem;
+      border: 0;
+    }
+    .chatIcon {
+      margin-right: 0.5rem;
+    }
+  }
+  .chatInput {
+    width: 100%;
+    border-bottom: 1px solid var(--gray-2);
+    margin-bottom: 0.5rem;
+    .MuiOutlinedInput-notchedOutline {
+      border-width: 0;
+    }
+  }
+}
+.chatBox {
+  background-color: var(--white);
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  .promptError {
+    position: absolute;
+    bottom: -25px;
+  }
+  .chatInput {
+    .MuiOutlinedInput-notchedOutline {
+      border-width: 0 1px 0 0;
+    }
+    .MuiInputBase-root {
+      border-radius: 0;
+      padding: 1.5rem 2rem;
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border: none;
+        border-right: 1px solid var(--gray-2);
+      }
+    }
+  }
+  .chatDropdown {
+    display: flex;
+    align-items: center;
+    color: var(--gray-2);
+    padding: 0 1rem;
+    border-right: 1px solid var(--gray-2);
+    .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border: none;
+    }
+    .MuiOutlinedInput-notchedOutline {
+      border-width: 0;
+    }
+    .MuiSelect-select {
+      min-width: 150px;
+      font-family: var(--fontB);
+    }
+  }
+  .chatIcon {
+    height: 55px;
+    width: 55px;
+    border-radius: 50%;
+    background-color: var(--yellow);
+    color: var(--black);
+    margin: auto 7px auto 10px;
+    &:hover {
+      background-color: var(--yellow);
+      color: var(--white);
+    }
+    svg {
+      width: 31px;
+      height: auto;
+    }
+  }
+}
+footer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem 1rem 2.5rem;
+  background-color: var(--greenDark);
+}
+
+// responsive below
+@media (max-width: 767px) {
+  body {
+    padding-top: 61px;
+    padding-bottom: 90px;
+    font-size: 0.9rem;
+  }
+  .landingPage h1 br {
+    display: none;
+  }
+  .userText {
+    margin-bottom: 1.5rem;
+    .userIcon {
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 0.9rem;
+      border-width: 1px;
+    }
+  }
+  .aiResponse {
+    h5 {
+      font-size: 0.9rem;
+    }
+    .aiIcon {
+      width: 30px;
+      min-width: 30px;
+    }
+    .copyResponse {
+      flex-direction: column;
+      h5 {
+        font-size: 1rem;
+        max-width: unset;
+        margin-bottom: 1rem;
+      }
+      .copyBtn {
+        margin-left: auto;
+      }
+    }
+    .emailResponse {
+      width: auto;
+      padding: 0.5rem;
+      h4 {
+        font-size: 1.3rem;
+        padding: 1.3rem;
+        margin-bottom: 0;
+      }
+      h5 {
+        margin-top: 1rem;
+      }
+    }
+    .mediaResponse {
+      width: unset;
+    }
+    .blogResponse {
+      img {
+        float: none;
+        margin-right: 0;
+        width: auto;
+      }
+      ul {
+        padding-left: 1rem;
+      }
+    }
+  }
+  .chatBox {
+    .chatDropdown {
+      flex-direction: column;
+      font-size: 0.7rem;
+      align-items: flex-start;
+      padding: 0 0 0 0.5rem;
+      p {
+        margin: 0.4rem 0 0;
+      }
+      .MuiInputBase-formControl {
+        font-size: 0.7rem;
+      }
+      .MuiSelect-select {
+        min-width: unset;
+        padding: 0.3rem;
+        padding-left: 0;
+      }
+    }
+    .chatIcon {
+      width: 37px;
+      height: 37px;
+      margin-left: 5px;
+      svg {
+        width: 21px;
+      }
+    }
+    .chatInput .MuiInputBase-root {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+  }
+  footer {
+    padding: 1rem 0.5rem 1rem;
+    > .MuiContainer-root {
+      max-width: unset;
+      padding: 0;
+    }
+  }
+}

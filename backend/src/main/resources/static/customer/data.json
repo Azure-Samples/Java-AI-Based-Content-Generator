@@ -1,0 +1,83 @@
+[
+  {
+    "name": "Alice Johnson",
+    "demographic": {
+      "gender": "female",
+      "age": 32,
+      "education": "Bachelor's Degree",
+      "occupation": "Software Engineer"
+    },
+    "physiographic": {
+      "interests": "Technology, Fitness",
+      "values": "Innovation, Sustainability",
+      "lifestyle": "Active"
+    },
+    "behavioral": {
+      "purchasingHabits": "Frequent online shopper",
+      "brandLoyalty": "High"
+    },
+    "location": {
+      "city": "New York",
+      "state": "NY",
+      "country": "USA"
+    },
+    "digitalBehavior": {
+      "socialMediaUsage": "Instagram, LinkedIn",
+      "browsingHabits": "Tech blogs, E-commerce websites"
+    }
+  },
+  {
+    "name": "Bob Smith",
+    "demographic": {
+      "gender": "male",
+      "age": 45,
+      "education": "Master's Degree",
+      "occupation": "Marketing Director"
+    },
+    "physiographic": {
+      "interests": "Travel, Luxury Cars",
+      "values": "Family, Success",
+      "lifestyle": "Luxury"
+    },
+    "behavioral": {
+      "purchasingHabits": "Occasional high-end purchases",
+      "brandLoyalty": "Moderate"
+    },
+    "location": {
+      "city": "Toronto",
+      "state": "Ontario",
+      "country": "Canada"
+    },
+    "digitalBehavior": {
+      "socialMediaUsage": "LinkedIn, Facebook",
+      "browsingHabits": "Luxury goods, Travel deals"
+    }
+  },
+  {
+    "name": "Carol Davis",
+    "demographic": {
+      "gender": "female",
+      "age": 27,
+      "education": "High School Diploma",
+      "occupation": "Freelance Artist"
+    },
+    "physiographic": {
+      "interests": "Art, Technology",
+      "values": "Creativity, Simplicity",
+      "lifestyle": "Minimalist"
+    },
+    "behavioral": {
+      "purchasingHabits": "Rare but quality-driven",
+      "brandLoyalty": "Low"
+    },
+    "location": {
+      "city": "London",
+      "state": "England",
+      "country": "UK"
+    },
+    "digitalBehavior": {
+      "socialMediaUsage": "Twitter, Pinterest",
+      "browsingHabits": "Art galleries, Tech news"
+    }
+  }
+]
