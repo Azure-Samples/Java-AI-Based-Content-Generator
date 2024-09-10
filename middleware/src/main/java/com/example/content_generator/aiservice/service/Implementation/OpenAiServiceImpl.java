@@ -1,5 +1,6 @@
 package com.example.content_generator.aiservice.service.Implementation;
 
+import com.example.content_generator.aiservice.core.NoResourceFoundException;
 import com.example.content_generator.aiservice.model.ContentRequest;
 import com.example.content_generator.aiservice.model.EmbeddingResponse;
 import com.example.content_generator.aiservice.model.Product;
@@ -89,7 +90,10 @@ public class OpenAiServiceImpl implements OpenAiService {
         // Get Product Details
         try{
             List<Product> productList = productService.fetchSimilarProductDetails(messageEmbedding).block();
-            return productList != null ? String.format(". Here is product list with details. %s", productList) : "";
+            if(productList == null || productList.isEmpty()) {
+                throw new NoResourceFoundException("No resources found: Product list is empty.");
+            }
+            return String.format(". Here is product list with details. %s", productList);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return "";

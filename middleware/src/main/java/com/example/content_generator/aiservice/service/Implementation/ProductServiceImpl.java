@@ -2,6 +2,7 @@ package com.example.content_generator.aiservice.service.Implementation;
 
 import com.example.content_generator.aiservice.adapter.ProductAdapter;
 import com.example.content_generator.aiservice.model.Product;
+import com.example.content_generator.aiservice.model.SimilarProductReq;
 import com.example.content_generator.aiservice.service.KeyVaultService;
 import com.example.content_generator.aiservice.service.ProductService;
 import com.example.content_generator.aiservice.util.KeyVaultConstants;
@@ -50,6 +51,6 @@ public class ProductServiceImpl implements ProductService {
             // Proceed with the default product endpoint (/api/v1/products/similar)
             LOGGER.info("Using default similar products endpoint : {}", similarProductsEndpoint);
         }
-        return productAdapter.getSimilarProductsDetails(similarProductsEndpoint, queryEmbedding);
+        return productAdapter.getSimilarProductsDetails(similarProductsEndpoint, new SimilarProductReq(queryEmbedding));
     }
 }

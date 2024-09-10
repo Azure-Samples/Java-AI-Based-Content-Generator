@@ -1,5 +1,6 @@
 package com.example.content_generator.aiservice.controller;
 
+import com.example.content_generator.aiservice.core.NoResourceFoundException;
 import com.example.content_generator.aiservice.model.ContentRequest;
 import com.example.content_generator.aiservice.model.EmbeddingReq;
 import com.example.content_generator.aiservice.service.OpenAiService;
@@ -27,7 +28,10 @@ public class ContentController {
         headers.setContentType(MediaType.APPLICATION_JSON);
         try {
             return new ResponseEntity<>(openAIService.generateContent(request), headers, HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (NoResourceFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), headers, HttpStatus.NO_CONTENT);
+        }
+        catch (Exception e) {
             return new ResponseEntity<>(e.toString(), headers, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

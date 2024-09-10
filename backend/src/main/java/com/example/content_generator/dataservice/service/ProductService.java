@@ -32,6 +32,7 @@ public class ProductService {
     }
 
     public List<Product> getProductsByIds(List<String> similarProductIds) {
+        LOGGER.info(similarProductIds.toString());
         // This will return products where the productId is in the provided list of similarProductIds
         return productRepository.findByIdIn(similarProductIds);
     }
