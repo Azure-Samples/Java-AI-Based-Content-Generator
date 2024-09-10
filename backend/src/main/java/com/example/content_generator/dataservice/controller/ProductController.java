@@ -2,6 +2,7 @@ package com.example.content_generator.dataservice.controller;
 
 import com.example.content_generator.dataservice.core.DynamicMapper;
 import com.example.content_generator.dataservice.dto.ProductDTO;
+import com.example.content_generator.dataservice.model.GetSimilarProductRequest;
 import com.example.content_generator.dataservice.model.Product;
 import com.example.content_generator.dataservice.service.ProductService;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,12 @@ public class ProductController {
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
+    }
+
+    @PostMapping("/similar")
+    public ResponseEntity<List<Product>> getSimilarProducts(@RequestBody GetSimilarProductRequest req) {
+        List<Product> products = productService.searchSimilarProducts(req.getQueryEmbeddings());
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")

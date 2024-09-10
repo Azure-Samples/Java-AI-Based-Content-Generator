@@ -1,49 +1,31 @@
-# Environment Variables for Backend Service
+# Environment Variables
 
-When deploying your application to Azure Web App Service, it's important to configure environment variables that your application will use to connect to various services. Below is a table listing common environment variables used for connecting to Azure Cosmos DB, Azure Storage, and MongoDB.
+This document provides definitions for the environment variables used in the project. Ensure these variables are set appropriately for your development, testing, or production environments.
 
-| **Environment Variable**                     | **Description**                                                                                               |
-|----------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| `AZURE_COSMOS_MONGODB_CONNECTION_STRING`     | The connection string for your Azure Cosmos DB instance configured to work with MongoDB API.                   |
-| `AZURE_STORAGE_CONNECTION_STRING`            | The connection string for your Azure Storage account, used for accessing storage services like Blob Storage.   |
-| `MONGODB_DATABASE_NAME`                      | The name of the MongoDB database your application will connect to within Azure Cosmos DB or a standalone MongoDB.|
-| `AZURE_STORAGE_CONTAINER_NAME`               | The name of the container within Azure Blob Storage where your application's data will be stored.              |
+## Azure Key Vault
 
-## Explanation of Environment Variables
+- **`AZURE_KEY_VAULT_URI`**: The URI of the Azure Key Vault instance. This is used to access secrets stored in Azure Key Vault.
+   - **Example**: `https://your-key-vault-name.vault.azure.net/`
 
-### `AZURE_COSMOS_MONGODB_CONNECTION_STRING`
-- **Purpose**: This environment variable holds the connection string required to connect your application to Azure Cosmos DB using the MongoDB API. It includes information like the database account endpoint, primary key, and other parameters.
-- **Usage**: Set this variable in your Azure Web App Service configuration to enable your application to connect to the MongoDB API endpoint provided by Azure Cosmos DB.
+## Azure Managed Identity
 
-### `AZURE_STORAGE_CONNECTION_STRING`
-- **Purpose**: This variable contains the connection string to access Azure Storage services, such as Blob, Table, Queue, and File Storage. It includes the storage account name and key.
-- **Usage**: Your application will use this connection string to perform operations like uploading or downloading files to/from Azure Blob Storage.
+When using Azure Managed Identity, you may also need to configure the following environment variables for authentication:
 
-### `MONGODB_DATABASE_NAME`
-- **Purpose**: This environment variable specifies the name of the MongoDB database that your application will interact with. This can be a database hosted on Azure Cosmos DB (using the MongoDB API) or a standalone MongoDB server.
-- **Usage**: Configure this variable to tell your application which database to use when performing data operations.
+- **`AZURE_CLIENT_ID`**: The client ID of the Azure Managed Identity used to authenticate against Azure services.
+   - **Default**: Not required if using Azure Managed Identity directly.
+   - **Example**: `your-client-id`
 
-### `AZURE_STORAGE_CONTAINER_NAME`
-- **Purpose**: This variable specifies the name of the container within Azure Blob Storage where your application will store or retrieve blobs (files, images, etc.).
-- **Usage**: Set this variable to ensure your application knows which container in Azure Storage to interact with.
+- **`AZURE_CLIENT_SECRET`**: The client secret for the Azure Managed Identity. This is used along with the client ID to authenticate.
+   - **Default**: Not required if using Azure Managed Identity directly.
+   - **Example**: `your-client-secret`
 
-## Setting Environment Variables in Azure Web App Service
+- **`AZURE_TENANT_ID`**: The tenant ID associated with your Azure subscription. This is needed for authentication and authorization.
+   - **Default**: Not required if using Azure Managed Identity directly.
+   - **Example**: `your-tenant-id`
 
-1. **Navigate to Your Web App Service:**
-    - Log in to the [Azure Portal](https://portal.azure.com).
-    - Select your Web App Service instance.
+## Default Values
 
-2. **Access Configuration Settings:**
-    - In the left-hand menu, select **Configuration** under **Settings**.
+When using Azure Managed Identity, you do not need to set `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, or `AZURE_TENANT_ID` as these are managed by Azure and the system will use the managed identity's credentials.
 
-3. **Add Environment Variables:**
-    - In the **Application settings** tab, click **+ New application setting**.
-    - Enter the **Name** and **Value** for each environment variable listed above.
-    - Click **OK** to save each setting.
-
-4. **Save and Restart:**
-    - After adding all the necessary environment variables, click **Save**.
-    - Restart your Web App Service to apply the changes.
-
-For more information on configuring environment variables, refer to the [Azure App Service Documentation](https://docs.microsoft.com/azure/app-service/configure-common).
+For local development or if not using managed identities, ensure to set these environment variables appropriately.
 

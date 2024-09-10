@@ -10,7 +10,7 @@
       },
       {
         "currencyCode": "EUR",
-        "value": 44.99
+        "value": 45.12
       }
     ]
   },
@@ -24,8 +24,8 @@
         "value": 54.99
       },
       {
-        "currencyCode": "GBP",
-        "value": 39.99
+        "currencyCode": "EUR",
+        "value": 49.63
       }
     ]
   },
@@ -39,8 +39,8 @@
         "value": 29.99
       },
       {
-        "currencyCode": "AUD",
-        "value": 39.99
+        "currencyCode": "EUR",
+        "value": 27.07
       }
     ]
   }

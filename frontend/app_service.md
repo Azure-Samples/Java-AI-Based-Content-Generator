@@ -73,7 +73,7 @@
 
 ## Additional Tips
 
-- **Environment Variables**: Set environment variables in the Azure Portal under **Configuration** if your application requires them.
+- **Environment Variables** [Reference](env_variables.md) : Set environment variables in the Azure Portal under **Configuration** if your application requires them.
 - **Scaling**: Configure scaling options in the App Service Plan to handle increased traffic.
 - **Custom Domains**: Set up custom domains and SSL certificates for a branded experience.
 

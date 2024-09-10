@@ -24,15 +24,37 @@ Before running the application, ensure that you have the following dependencies 
 
 The application requires certain configurations to be set in the `application.properties` file ( path [src/main/resources/application.properties](src/main/resources/application.properties)).
 
+**Azure Key Vault Setup and App Registration**
+* Create Azure Key Vault and Set Secrets
+  * **Step 1: Create an Azure Key Vault**
+    * Go to the Azure Portal.
+    * Navigate to "Create a resource" and search for "Key Vault".
+    * Click "Create" and fill in the required details:
+     ```
+      Name: Your Key Vault name (e.g., myKeyVault)
+      Subscription: Choose your subscription
+      Resource Group: Create or select an existing resource group
+      Region: Choose the region where you want to deploy the Key Vault
+     ```
+    * Click "Review + create" and then "Create".
+  * **Step 2: Set Secrets in Azure Key Vault**
+    * Navigate to your Key Vault in the Azure Portal.
+    * Go to the "Secrets" section and click "Generate/Import".
+    * Enter the name and value for each secret. Use the constants listed below for reference:
+         ```
+            MiddlewareServiceBaseUrl
+            MiddlewareServiceProductEmbeddingEndpoint
+            MiddlewareServiceAccessKey
+            AzureCosmosConnectionString
+            MongoDBDatabaseName
+            AzureStorageConnectionString
+            StorageContainerName
+         ```
+    * Click "Create" to add each secret.
+
 ### 1. MongoDB Connection
 
 You need to specify the connection string to your Azure Cosmos DB (with MongoDB API).
-
-Add the following property in your `application.properties` file :
-
-```properties
-spring.data.mongodb.uri=${AZURE_COSMOS_MONGODB_CONNECTION_STRING}
-```
 
 #### How to Get Azure Cosmos MongoDB Connection String
 
@@ -44,10 +66,6 @@ spring.data.mongodb.uri=${AZURE_COSMOS_MONGODB_CONNECTION_STRING}
 ### 2. Azure Blob Storage Connection
 
 Similarly, you need to add the connection string for your Azure Storage account.
-
-```properties
-azure.storage.connection-string=${AZURE_STORAGE_CONNECTION_STRING}
-```
 
 #### How to Get Azure Storage Account Connection String
 

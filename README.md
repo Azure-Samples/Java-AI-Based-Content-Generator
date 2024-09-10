@@ -12,6 +12,15 @@ This repository contains the "Content Generator for Marketing Campaign", a multi
 - [Middleware Application](middleware): Interfaces with AI services to generate content based on user input.
 - [Frontend Application](frontend): Provides a user-friendly interface for selecting content types and generating marketing materials.
 
+# Architecture Diagram
+## AKS
+
+![images/aks.png](images/aks.png)
+
+## App Service
+
+![images/appService.png](images/appService.png)
+
 ## Getting Started
 
 Each application has its own setup instructions and dependencies. Refer to the respective README file in each folder for more details.

@@ -20,4 +20,8 @@ public class ProductAdapter {
     public Mono<List<Product>> getProductDetails(String endpoint, Map<String, String> params) {
         return apiCallService.get(endpoint, params);
     }
+
+    public Mono<List<Product>> getSimilarProductsDetails(String endpoint, Object body) {
+        return apiCallService.post(endpoint, body);
+    }
 }

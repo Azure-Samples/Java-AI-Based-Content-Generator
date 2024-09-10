@@ -3,7 +3,7 @@ import {msalInstance} from "../index";
 
 const instance = axios.create({
   baseURL: process.env.REACT_APP_SERVICE_BASE_URL,
-  timeout: 10000
+  timeout: 240000
 });
 
 // Request Interceptor

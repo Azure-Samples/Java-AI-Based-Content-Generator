@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.example.content_generator.aiservice.core.Common.generateCustomUUID;
@@ -70,4 +71,15 @@ public class Product {
     public void setSku(String sku) {
         this.sku = sku;
     }
+
+   @Override
+    public String toString() {
+       return "Product {" +
+               "id='" + id + '\'' +
+               ", name='" + name + '\'' +
+               ", description='" + description + '\'' +
+               ", sku='" + sku + '\'' +
+               ", prices=" + Arrays.toString(prices.toArray()) +
+               '}';
+   }
 }

@@ -30,7 +30,11 @@ Before building the Docker image, make sure that the environment variables in yo
 To build the Docker image, use the following command:
 
 ```bash
-docker build -t <YOUR_ACR_NAME>.azurecr.io/frontend-image:v1 .
+docker build --build-arg REACT_APP_SERVICE_BASE_URL=http://your-service-base-url \
+             --build-arg REACT_APP_CLIENT_ID=your-client-id \
+             --build-arg REACT_APP_CONTENT_GENERATOR_ENDPOINT=/api/v1/generate/content \
+             --build-arg REACT_APP_SERVICE_ACCESS_KEY=your-access-key \
+             -t <YOUR_ACR_NAME>.azurecr.io/frontend-image:v1 .
 ```
 
 ### Login to Azure Container Registry (ACR)

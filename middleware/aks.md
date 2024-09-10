@@ -30,7 +30,11 @@ Before building the Docker image, make sure that the environment variables in yo
 To build the Docker image, use the following command:
 
 ```bash
-docker build -t <YOUR_ACR_NAME>.azurecr.io/middleware-image:v1 .
+docker build --build-arg AZURE_KEY_VAULT_URI=http://your-key-vault-url/ \
+             --build-arg AZURE_CLIENT_ID=your-client-id \
+             --build-arg AZURE_CLIENT_SECRET=your-client-secret \
+             --build-arg AZURE_TENANT_ID=your-tenant-id \
+             -t <YOUR_ACR_NAME>.azurecr.io/middleware-image:v1 .
 ```
 
 ### Login to Azure Container Registry (ACR)
@@ -61,7 +65,7 @@ If you want to test the Docker image locally, use the following commands:
 
 ### Build Docker Image Locally
 ```bash
-docker build -t cg-middleware .
+docker --env-file .env build -t cg-middleware .
 ```
 ### Run Docker Image Locally
 ```bash

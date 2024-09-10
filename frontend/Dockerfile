@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18 AS build
+FROM mcr.microsoft.com/devcontainers/javascript-node:latest AS build
 
 # Set the working directory in the container
 WORKDIR /app
@@ -17,17 +17,22 @@ COPY . .
 RUN npm run build
 
 # Use an official Nginx image to serve the application
-FROM nginx:alpine
+FROM mcr.microsoft.com/cbl-mariner/base/nginx:1
 
 # Copy the built React application from the previous stage
 COPY --from=build /app/build /usr/share/nginx/html
 
+# Set environment variables for the Nginx container
+ARG REACT_APP_SERVICE_BASE_URL
+ARG REACT_APP_CLIENT_ID
+ARG REACT_APP_CONTENT_GENERATOR_ENDPOINT
+ARG REACT_APP_SERVICE_ACCESS_KEY
 
 # Set environment variables for the Nginx container
-ENV REACT_APP_SERVICE_BASE_URL=https://dev-content-generator-middleware-aegvcjdjbkaqfch8.eastus-01.azurewebsites.net
-ENV REACT_APP_CLIENT_ID=c23e9e28-22a3-4f63-880f-eaa88fce0503
-ENV REACT_APP_CONTENT_GENERATOR_ENDPOINT=/api/v1/generate/content
-ENV REACT_APP_SERVICE_ACCESS_KEY=b2dd28f8a77141d5a35baf3e2f3fcd45
+ENV REACT_APP_SERVICE_BASE_URL=${REACT_APP_SERVICE_BASE_URL}
+ENV REACT_APP_CLIENT_ID=${REACT_APP_CLIENT_ID}
+ENV REACT_APP_CONTENT_GENERATOR_ENDPOINT=${REACT_APP_CONTENT_GENERATOR_ENDPOINT}
+ENV REACT_APP_SERVICE_ACCESS_KEY=${REACT_APP_SERVICE_ACCESS_KEY}
 
 # Expose port 80 to the outside world
 EXPOSE 80

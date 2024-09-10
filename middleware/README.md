@@ -27,20 +27,58 @@ This is a backend API for generating marketing content, built using Spring Boot 
 
 2. **Configure Azure OpenAI**
 
+    ## Chat Completion
     * Go to [Azure OpenAI](https://ai.azure.com) and deploy the GPT model.
     * Retrieve your **Azure OpenAI Endpoint URL** from your OpenAI service.
     * Retrieve your **Azure OpenAI API Key** from the Azure portal.
+    * **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
+    ![images/TokenLimit.png](images/TokenLimit.png)
+    ![images/TokenLimit.png](images/ModelDeploymentDetails.png)
 
-3. **Update Application Properties**
+    ## Generate Embedding
+    * Go to [Azure OpenAI](https://ai.azure.com) and deploy the text embedding model.
+    * Retrieve your **Azure OpenAI Endpoint URL** from your OpenAI service.
+    * Retrieve your **Azure OpenAI API Key** from the Azure portal.
+    * **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
+
+3. **Azure Key Vault Setup and App Registration**
+   * Create Azure Key Vault and Set Secrets 
+     * **Step 1: Create an Azure Key Vault**
+       * Go to the Azure Portal. 
+       * Navigate to "Create a resource" and search for "Key Vault". 
+       * Click "Create" and fill in the required details:
+          ```
+           Name: Your Key Vault name (e.g., myKeyVault)
+           Subscription: Choose your subscription
+           Resource Group: Create or select an existing resource group
+           Region: Choose the region where you want to deploy the Key Vault
+          ``` 
+       * Click "Review + create" and then "Create".
+     * **Step 2: Set Secrets in Azure Key Vault**
+       * Navigate to your Key Vault in the Azure Portal.
+       * Go to the "Secrets" section and click "Generate/Import". 
+       * Enter the name and value for each secret. Use the constants listed below for reference:
+            ```
+               BackendServiceBaseUrl
+               BackendServiceProductEndpoint
+               BackendServiceSimilarProductEndpoint
+               BackendServiceAccessKey
+               AzureOpenAiEndpointUrl
+               AzureOpenAiAccessKey
+               AzureOpenAiEmbeddingEndpointUrl
+               AzureOpenAiEmbeddingKey
+            ```
+       * Click "Create" to add each secret.
+
+4. **Update Application Properties**
    
    Open the `application.properties` file ( path [src/main/resources/application.properties](src/main/resources/application.properties)) and update the following values:
    
     ```properties
-   azure.openai.endpoint_url=${AZURE_OPENAI_ENDPOINT_URL}
-   azure.openai.key=${AZURE_OPENAI_KEY}
+   azure.keyvault.uri=${AZURE_KEY_VAULT_URI}
    ```
 
-4. **Run the Application**
+5. **Run the Application**
 
    Use Maven to run the application:
 
@@ -48,7 +86,7 @@ This is a backend API for generating marketing content, built using Spring Boot 
     ./mvnw spring-boot:run
    ```
 
-5. **Build the Application**
+6. **Build the Application**
 
    Use Maven to run the application:
 

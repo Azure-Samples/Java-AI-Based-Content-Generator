@@ -1,6 +1,5 @@
 package com.example.content_generator.aiservice.model;
 
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 

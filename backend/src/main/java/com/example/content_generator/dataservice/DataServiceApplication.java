@@ -13,7 +13,7 @@ public class DataServiceApplication {
         try {
             SpringApplication.run(DataServiceApplication.class, args);
         } catch (Exception e) {
-            LOGGER.error("Application failed to start", e);
+            LOGGER.error("Application failed to start: {}", e.getMessage());
         }
     }
 

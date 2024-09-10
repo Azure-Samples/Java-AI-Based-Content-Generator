@@ -48,7 +48,7 @@ az webapp deployment user set --user-name <username> --password <password>
 Replace `<username>` and `<password>` with your preferred credentials.
 
 ### 6. Deploy the WAR File
-#### Build the Application
+#### Build the Application - [Reference](env_variables.md)
 Once you have added the required configurations in your `application.properties`, you can run the application using the following command:
 
 ```bash

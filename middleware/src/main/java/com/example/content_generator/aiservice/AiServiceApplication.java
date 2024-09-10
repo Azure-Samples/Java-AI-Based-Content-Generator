@@ -14,7 +14,7 @@ public class AiServiceApplication {
         try {
             SpringApplication.run(AiServiceApplication.class, args);
         } catch (Exception e) {
-            LOGGER.error("Application failed to start", e);
+            LOGGER.error("Application failed to start : {}", e.getMessage());
         }
     }
 }
