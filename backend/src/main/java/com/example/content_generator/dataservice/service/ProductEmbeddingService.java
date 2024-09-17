@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +70,7 @@ public class ProductEmbeddingService {
 
         // Calculate cosine similarity and filter based on score > 0.85
         List<ProductEmbedding> similarProductEmbeddings = allEmbeddings.stream()
+                .sorted(Comparator.comparingDouble(embedding -> -cosineSimilarity(queryEmbedding, embedding.getEmbedding()))) // Sort by similarity in descending order
                 .filter(embedding -> cosineSimilarity(queryEmbedding, embedding.getEmbedding()) > 0.85)
                 .limit(5)  // Limit to top 5 results
                 .toList();

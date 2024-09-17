@@ -7,6 +7,7 @@
 3. Install Java JDK 21 and [Maven](https://maven.apache.org/install.html).
 4. Have a WAR file ready for deployment, named `backend.war`.
 
+
 ## Steps to Deploy
 
 ### 1. **Log in to Azure**
@@ -47,8 +48,24 @@ az webapp deployment user set --user-name <username> --password <password>
 ```
 Replace `<username>` and `<password>` with your preferred credentials.
 
-### 6. Deploy the WAR File
-#### Build the Application
+### 6. Set Environment Variables (Key Vault and Identity)
+Configure the following environment variables needed for accessing Azure Key Vault and using Managed Identities:
+
+```bash
+az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_KEYVAULT_URI=<your-keyvault-uri>
+az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_CLIENT_ID=<your-client-id>
+az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_CLIENT_SECRET=<your-client-secret>
+az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_TENANT_ID=<your-tenant-id>
+```
+
+* Replace `<your-keyvault-uri>` with your Azure Key Vault URI (e.g., `https://<your-keyvault-name>.vault.azure.net/`).
+* Replace `<your-client-id>` with your Azure AD app's client ID.
+* Replace `<your-client-secret>` with your Azure AD app's client secret.
+* Replace `<your-tenant-id>` with your Azure AD tenant ID.
+
+
+### 7. Deploy the WAR File
+#### Build the Application - [Reference](env_variables.md)
 Once you have added the required configurations in your `application.properties`, you can run the application using the following command:
 
 ```bash
@@ -62,7 +79,7 @@ Use the Azure CLI to deploy your WAR file:
 az webapp deployment source config-zip --resource-group <your-resource-group> --name <your-webapp-name> --src ./target/backend.war
 ```
 
-### 7. Verify the Deployment
+### 8. Verify the Deployment
 Open your web app in a browser:
 
 ```bash
@@ -71,6 +88,14 @@ az webapp browse --resource-group <your-resource-group> --name <your-webapp-name
 
 Alternatively, navigate to https://<your-webapp-name>.azurewebsites.net to see your application running.
 
+### 9. Destroy the Azure Resources
+To clean up and delete all the resources created (App Service, App Service Plan, and Resource Group), you can run the following command:
+
+```bash
+az group delete --name <your-resource-group> --yes --no-wait
+```
+This will delete the resource group and all associated resources.
+
+
 Reference:
 * https://learn.microsoft.com/en-us/azure/app-service/quickstart-dotnetcore?tabs=net80&pivots=development-environment-azure-portal
-

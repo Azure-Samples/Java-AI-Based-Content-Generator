@@ -48,6 +48,14 @@ h5 {
   font-weight: normal;
 }
 
+h3 {
+  font-size: 1.7rem;
+}
+
+h4 {
+  font-size: 1.2rem;
+}
+
 body {
   background-color: var(--greenDark);
   font-family: var(--font);
@@ -55,9 +63,13 @@ body {
   letter-spacing: 1px;
   padding-top: 90px;
   padding-bottom: 171px;
+  font-size: 1rem;
 }
 img {
   max-width: 100%;
+}
+.spacer1 {
+  height: 1rem;
 }
 
 // loader
@@ -104,6 +116,17 @@ img {
     &:hover {
       background-color: var(--yellow);
       border-color: var(--yellow);
+    }
+  }
+  .menuItems {
+    margin-right: 1rem;
+  }
+  a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.9rem;
+    &:hover {
+      color: var(--yellow);
     }
   }
 }

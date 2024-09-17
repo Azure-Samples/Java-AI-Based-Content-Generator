@@ -25,7 +25,7 @@ export async function callMsGraph() {
 
         return fetch(graphConfig.graphMeEndpoint, options)
             .then(response => response.json())
-            .catch(error => console.log(error));
+            .catch(error => console.error(error));
     }
     catch (e) {
         console.error("Error calling MS Graph API:", e);

@@ -26,7 +26,7 @@ To add an inbound policy that checks for the `api-key` header, follow these step
         </check-header>
     </inbound>
     ```
-   * Replace `YOUR_API_KEY` with the actual API key value.
+   * Replace `YOUR_API_KEY` with the actual API key value (Generate UUID).
 
 3. **Save the Policy**:
    * Click **Save** to apply the policy.

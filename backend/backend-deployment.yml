@@ -17,6 +17,9 @@ spec:
           image: <YOUR_ACR_URL>.azurecr.io/backend-image:v1
           ports:
             - containerPort: 8080
+          env:
+            - name: AZURE_KEYVAULT_URL
+              value: https://<KEY_VAULT_NAME>.vault.azure.net/
 ---
 apiVersion: v1
 kind: Service

@@ -18,7 +18,31 @@ npm run build
 ```
 This command will generate a `build` directory containing the static files of your React application.
 
-## Step 2: Build and Push Docker Image
+## Step 2: Set Up AKS and ACR (Optional)
+If you don't already have an Azure Kubernetes Service (AKS) and Azure Container Registry (ACR) set up, you can follow this optional step to create them.
+
+### Create AKS Cluster and ACR
+
+To create an AKS cluster and ACR, use the following commands:
+
+1. **Create a resource group:**
+   ```bash
+   az group create --name <YOUR_RESOURCE_GROUP> --location <LOCATION>
+   ```
+
+2. **Create an ACR:**
+   ```bash
+   az acr create --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_ACR_NAME> --sku Basic
+   ```
+
+3. **Create an AKS cluster:**
+   ```bash
+   az aks create --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_AKS_CLUSTER_NAME> --node-count 1 --enable-managed-identity --attach-acr <YOUR_ACR_NAME>
+   ```
+Once the AKS cluster and ACR are set up, proceed with the next steps.
+
+
+## Step 3: Build and Push Docker Image
 
 ### Update Environment Variables in Dockerfile
 
@@ -60,7 +84,7 @@ Push the Docker image to your ACR:
 docker push <YOUR_ACR_NAME>.azurecr.io/frontend-image:v1
 ```
 
-## Step 3: Run Docker Image Locally (Optional)
+## Step 4: Run Docker Image Locally (Optional)
 If you want to test the Docker image locally, use the following commands:
 
 ### Build Docker Image Locally
@@ -73,7 +97,7 @@ docker run -p 80:80 cg-frontend
 ```
 You can access the application at **http://localhost:80**.
 
-## Step 4: Deploy to AKS
+## Step 5: Deploy to AKS
 ### Apply Kubernetes Deployment Locally
 First, apply the Kubernetes deployment using the following command:
 
@@ -97,3 +121,27 @@ To deploy the application to AKS, ensure your kubectl is connected to your AKS c
 kubectl apply -f frontend-deployment.yml
 ```
 This will deploy your application to the AKS cluster.
+
+
+## Step 6: Destroy Resources (Optional)
+
+If you want to clean up and destroy the resources after you're done, you can follow these steps:
+
+1. **Delete AKS Cluster**
+   To delete the AKS cluster, use the following command:
+   ```bash 
+   az aks delete --name <YOUR_AKS_CLUSTER_NAME> --resource-group <YOUR_RESOURCE_GROUP> --yes --no-wait
+   ```
+2. **Delete ACR (Azure Container Registry)**
+   To delete the ACR, run this command:
+   ```bash 
+   az acr delete --name <YOUR_ACR_NAME> --resource-group <YOUR_RESOURCE_GROUP>
+   ```
+3. **Delete Resource Group**
+   To delete the resource group, which will also delete all associated resources, use the following command:
+   ```bash 
+   az group delete --name <YOUR_RESOURCE_GROUP> --yes --no-wait
+   ```
+This will completely remove your AKS cluster, ACR, and all resources associated with the resource group.
+With these additional instructions, users will have the option to destroy all resources created for the deployment, ensuring a clean environment if needed.
+

@@ -1,6 +1,6 @@
 [
   {
-    "name": "Radiant Glow Day Cream",
+    "name": "Best For You Organic Day Cream",
     "description": "A nourishing day cream that hydrates and brightens your skin.",
     "sku": "RGDC001",
     "prices": [
@@ -15,7 +15,7 @@
     ]
   },
   {
-    "name": "Radiant Glow Night Cream",
+    "name": "Best For You Organic Night Cream",
     "description": "A rejuvenating night cream that restores skin while you sleep.",
     "sku": "RGNC002",
     "prices": [
@@ -30,7 +30,7 @@
     ]
   },
   {
-    "name": "Radiant Glow Sun Care",
+    "name": "Best For You Organic Sun Care",
     "description": "A protective sun care lotion that shields skin from harmful UV rays.",
     "sku": "RGSC003",
     "prices": [

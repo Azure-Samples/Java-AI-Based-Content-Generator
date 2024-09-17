@@ -16,7 +16,7 @@ This is a backend API for generating marketing content, built using Spring Boot 
 
 ## Getting Started
 
-1. **Clone the Repository**
+## 1. **Clone the Repository**
 
    ```bash
    git clone https://github.com/terawe/contentgenerator.git
@@ -25,23 +25,21 @@ This is a backend API for generating marketing content, built using Spring Boot 
    
    ## Setup Environment Variables - [Reference](env_variables.md)
 
-2. **Configure Azure OpenAI**
+## 2. **Configure Azure OpenAI** - [Reference](https://learn.microsoft.com/en-us/azure/ai-studio/)
 
-    ## Chat Completion
-    * Go to [Azure OpenAI](https://ai.azure.com) and deploy the GPT model.
-    * Retrieve your **Azure OpenAI Endpoint URL** from your OpenAI service.
-    * Retrieve your **Azure OpenAI API Key** from the Azure portal.
-    * **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
-    ![images/TokenLimit.png](images/TokenLimit.png)
-    ![images/TokenLimit.png](images/ModelDeploymentDetails.png)
+## Chat Completion
+* Go to [Azure OpenAI](https://ai.azure.com) and deploy the GPT model.
+* Retrieve your **Azure OpenAI Endpoint URI** and **Azure OpenAI API Key** from your deployment details and add it in the key vault.
+* **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
+![images/TokenLimit.png](images/TokenLimit.png)
+![images/TokenLimit.png](images/ModelDeploymentDetails.png)
 
-    ## Generate Embedding
-    * Go to [Azure OpenAI](https://ai.azure.com) and deploy the text embedding model.
-    * Retrieve your **Azure OpenAI Endpoint URL** from your OpenAI service.
-    * Retrieve your **Azure OpenAI API Key** from the Azure portal.
-    * **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
+## Generate Embedding
+* Go to [Azure OpenAI](https://ai.azure.com) and deploy the text embedding model.
+* Retrieve your **Azure OpenAI Endpoint URI** and **Azure OpenAI API Key** from your deployment details and add it in the key vault.
+* **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
 
-3. **Azure Key Vault Setup and App Registration**
+## 3. **Azure Key Vault Setup and App Registration**
    * Create Azure Key Vault and Set Secrets 
      * **Step 1: Create an Azure Key Vault**
        * Go to the Azure Portal. 
@@ -70,29 +68,27 @@ This is a backend API for generating marketing content, built using Spring Boot 
             ```
        * Click "Create" to add each secret.
 
-4. **Update Application Properties**
+## 4. **Update Application Properties**
    
    Open the `application.properties` file ( path [src/main/resources/application.properties](src/main/resources/application.properties)) and update the following values:
-   
-    ```properties
-   azure.keyvault.uri=${AZURE_KEY_VAULT_URI}
-   ```
 
-5. **Run the Application**
+## 5. **Azure Managed Identity Setup** - [Reference](env_variables.md)
+
+## 6. **Run the Application**
 
    Use Maven to run the application:
+    
+```bash
+./mvnw spring-boot:run
+```
 
-    ```bash
-    ./mvnw spring-boot:run
-   ```
-
-6. **Build the Application**
+## 7. **Build the Application**
 
    Use Maven to run the application:
+```bash
+./mvnw clean package
+```
 
-    ```bash
-    ./mvnw clean package
-   ```
 ## Deployment Methods
 
 ### 1. Deploying to Azure Kubernetes Service (AKS)

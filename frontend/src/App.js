@@ -2,7 +2,6 @@ import "./App.scss";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Header } from "./components/common/Header";
 import { Landing } from "./components/Landing";
-import { Footer } from "./components/common/Footer";
 import {
   AuthenticatedTemplate,
   MsalAuthenticationTemplate,
@@ -22,6 +21,7 @@ import { ErrorComponent } from "./ui-components/ErrorComponent";
 import { Loading } from "./ui-components/Loading";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import About from "./components/About";
 
 function App({ pca }) {
   const navigate = useNavigate();
@@ -34,17 +34,17 @@ function App({ pca }) {
   useEffect(() => {
     if (!graphData && inProgress === InteractionStatus.None) {
       callMsGraph()
-        .then((response) => setGraphData(response))
-        .catch((e) => {
-          if (e instanceof InteractionRequiredAuthError) {
-            instance.acquireTokenRedirect({
-              ...loginRequest,
-              account: instance.getActiveAccount()
-            });
-          } else {
-            console.error("Error fetching graph data:", e);
-          }
-        });
+          .then((response) => setGraphData(response))
+          .catch((e) => {
+            if (e instanceof InteractionRequiredAuthError) {
+              instance.acquireTokenRedirect({
+                ...loginRequest,
+                account: instance.getActiveAccount()
+              });
+            } else {
+              console.error("Error fetching graph data:", e);
+            }
+          });
     }
   }, [inProgress, graphData, instance]);
 
@@ -53,28 +53,28 @@ function App({ pca }) {
   };
 
   return (
-    <Provider store={store}>
-      <MsalProvider instance={pca}>
-        <MsalAuthenticationTemplate
-          interactionType={InteractionType.Redirect}
-          authenticationRequest={authRequest}
-          errorComponent={ErrorComponent}
-          loadingComponent={Loading}
-        >
-          <AuthenticatedTemplate>
-            <div className="App">
-              <Header />
-              <main>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
-          </AuthenticatedTemplate>
-        </MsalAuthenticationTemplate>
-      </MsalProvider>
-    </Provider>
+      <Provider store={store}>
+        <MsalProvider instance={pca}>
+          <MsalAuthenticationTemplate
+              interactionType={InteractionType.Redirect}
+              authenticationRequest={authRequest}
+              errorComponent={ErrorComponent}
+              loadingComponent={Loading}
+          >
+            <AuthenticatedTemplate>
+              <div className="App">
+                <Header />
+                <main>
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/about" element={<About />} />
+                  </Routes>
+                </main>
+              </div>
+            </AuthenticatedTemplate>
+          </MsalAuthenticationTemplate>
+        </MsalProvider>
+      </Provider>
   );
 }
 

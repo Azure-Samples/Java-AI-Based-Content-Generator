@@ -63,6 +63,33 @@
     - Ensure the **api-key** header and **Content-Type** are included in the request.
     - Click **Send** to test the POST operation.
    
+## Steps to Add a POST Operation for `/api/v1/products/similar`
+
+1. **Navigate to Azure API Management Service:**
+    - Follow the same steps as described in the GET operation section to navigate to your API.
+
+2. **Select Your API:**
+    - Choose the API to which you want to add the GET operation.
+
+3. **Add the POST Operation for `/api/v1/products/similar`:**
+    - In the API menu, select **Design**.
+    - Click on **+ Add Operation**.
+    - In the **Add Operation** pane, fill in the details:
+        - **Display Name**: `Get Similar Products`
+        - **Name**: `get-similar-products`
+        - **Method**: Select **POST** from the dropdown list.
+        - **URL Template**: Enter `/api/v1/products/similar`. 
+    - Click **Save** to create the operation.
+
+4. **Define the POST Operation:**
+   - Configure request and response parameters, policies, and set up the backend service as needed.
+   - Click **Save** after making your configurations.
+
+5. **Test the POST Operation:**
+   - In the **Design** tab, click on **Test**.
+   - Ensure the **api-key** header and **Content-Type** are included in the request.
+   - Click **Send** to test the POST operation.
+   
 ## Additional Tips
 
 - **Versioning**: Consider versioning your API if you expect multiple versions to be used concurrently.

@@ -71,6 +71,16 @@
 2. **Monitor and Manage Your Web App:**
     - Use the [Azure Portal](https://portal.azure.com) to monitor and manage your Web App Service.
 
+
+### 5. Destroy the Azure Resources
+To clean up and delete all the resources created (App Service, App Service Plan, and Resource Group), you can run the following command:
+
+```bash
+az group delete --name <your-resource-group> --yes --no-wait
+```
+This will delete the resource group and all associated resources.
+
+
 ## Additional Tips
 
 - **Environment Variables** [Reference](env_variables.md) : Set environment variables in the Azure Portal under **Configuration** if your application requires them.

@@ -4,9 +4,10 @@ import MenuItem from "@mui/material/MenuItem";
 import { useEffect, useState } from "react";
 import Container from "@mui/material/Container";
 import { msalInstance } from "../../index";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { setUserName } from "../../store/userSlice";
+import { Link } from "react-router-dom";
 
 export const Header = () => {
   const dispatch = useDispatch();
@@ -41,51 +42,58 @@ export const Header = () => {
   dispatch(setUserName(getPersonaString(accountInfo?.name)));
 
   return (
-    <div className="headerMain">
-      <Container fixed>
-        <h5>App Modernization: Content Generation Sample</h5>
-        <IconButton
-          aria-label="more"
-          id="long-button"
-          aria-controls={open ? "long-menu" : undefined}
-          aria-expanded={open ? "true" : undefined}
-          aria-haspopup="true"
-          onClick={handleClick}
-          className="btnHeader"
-        >
-          {getPersonaString(accountInfo?.name)}
-        </IconButton>
-        <Menu
-          id="long-menu"
-          MenuListProps={{
-            "aria-labelledby": "long-button"
-          }}
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right"
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right"
-          }}
-        >
-          <MenuItem onClick={handleClose}>{accountInfo?.name}</MenuItem>
-          <MenuItem onClick={handleClose}>{accountInfo?.username}</MenuItem>
-          <MenuItem onClick={handleClose}>
-            <Button
-              onClick={() => {
-                msalInstance.clearCache();
-                window.location.href = window.location.origin;
-              }}
+      <div className="headerMain">
+        <Container fixed>
+          <h5>
+            <Link to="/">App Modernization: Content Generation Sample</Link>
+          </h5>
+          <Box display={"flex"} alignItems={"center"}>
+            <Box className="menuItems">
+              <Link to="/about">About</Link>
+            </Box>
+            <IconButton
+                aria-label="more"
+                id="long-button"
+                aria-controls={open ? "long-menu" : undefined}
+                aria-expanded={open ? "true" : undefined}
+                aria-haspopup="true"
+                onClick={handleClick}
+                className="btnHeader"
             >
-              Logout
-            </Button>
-          </MenuItem>
-        </Menu>
-      </Container>
-    </div>
+              {getPersonaString(accountInfo?.name)}
+            </IconButton>
+            <Menu
+                id="long-menu"
+                MenuListProps={{
+                  "aria-labelledby": "long-button"
+                }}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right"
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right"
+                }}
+            >
+              <MenuItem onClick={handleClose}>{accountInfo?.name}</MenuItem>
+              <MenuItem onClick={handleClose}>{accountInfo?.username}</MenuItem>
+              <MenuItem onClick={handleClose}>
+                <Button
+                    onClick={() => {
+                      msalInstance.clearCache();
+                      window.location.href = window.location.origin;
+                    }}
+                >
+                  Logout
+                </Button>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Container>
+      </div>
   );
 };

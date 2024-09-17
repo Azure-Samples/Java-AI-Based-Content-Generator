@@ -4,7 +4,7 @@ This document provides definitions for the environment variables used in the pro
 
 ## Azure Key Vault
 
-- **`AZURE_KEY_VAULT_URI`**: The URI of the Azure Key Vault instance. This is used to access secrets stored in Azure Key Vault.
+- **`AZURE_KEYVAULT_URI`**: The URI of the Azure Key Vault instance. This is used to access secrets stored in Azure Key Vault.
   - **Example**: `https://your-key-vault-name.vault.azure.net/`
 
 ## Azure Managed Identity

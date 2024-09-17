@@ -5,7 +5,8 @@ const promptSlice = createSlice({
   initialState: {
     userSearch: [],
     markdownData: null,
-    error: false
+    error: false,
+    errorProductNotFound: false
   },
   reducers: {
     setUserPrompt: (state, action) => {
@@ -19,11 +20,19 @@ const promptSlice = createSlice({
     },
     setApiError: (state, action) => {
       state.error = action.payload;
+    },
+    productNotFound: (state, action) => {
+      state.errorProductNotFound = action.payload;
     }
   }
 });
 
-export const { setUserPrompt, clearUserPrompt, getMarkdownData, setApiError } =
-  promptSlice.actions;
+export const {
+  setUserPrompt,
+  clearUserPrompt,
+  getMarkdownData,
+  setApiError,
+  productNotFound
+} = promptSlice.actions;
 
 export default promptSlice.reducer;

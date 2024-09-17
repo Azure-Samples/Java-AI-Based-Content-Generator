@@ -94,7 +94,10 @@ public class OpenAiServiceImpl implements OpenAiService {
                 throw new NoResourceFoundException("No resources found: Product list is empty.");
             }
             return String.format(". Here is product list with details. %s", productList);
-        } catch (Exception e) {
+        } catch (NoResourceFoundException e) {
+            throw new NoResourceFoundException(e.getMessage());
+        }
+        catch (Exception e) {
             LOGGER.error(e.getMessage());
             return "";
         }

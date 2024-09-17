@@ -6,7 +6,7 @@ This Spring Boot application interacts with Azure Cosmos MongoDB to store critic
 
 Before running the application, ensure that you have the following dependencies set up:
 
-- Java 17
+- Java 21
 - Spring Boot
 - MongoDB (Azure Cosmos DB with MongoDB API)
 - Azure Blob Storage
@@ -61,7 +61,7 @@ You need to specify the connection string to your Azure Cosmos DB (with MongoDB 
 1. Go to your Azure Portal.
 2. Navigate to your Azure Cosmos DB resource.
 3. Under the **Settings** section, click on **Connection String**.
-4. Copy the **Primary Connection String** and add `AZURE_COSMOS_MONGODB_CONNECTION_STRING` in environment variables.
+4. Copy the **Primary Connection String** and add it in the key vault.
 
 ### 2. Azure Blob Storage Connection
 
@@ -72,7 +72,7 @@ Similarly, you need to add the connection string for your Azure Storage account.
 1. Go to your Azure Portal.
 2. Navigate to your Storage Account resource.
 3. Under the **Security + Networking** section, click on **Access keys**.
-4. Copy the **Connection String** for either key1 or key2 and add `AZURE_STORAGE_CONNECTION_STRING` in environment variables.
+4. Copy the **Connection String** for either key1 or key2 and add it in the key vault.
 
 ### 3. Data Append Configuration
 
@@ -84,14 +84,16 @@ data.append.enabled=true
 * When `data.append.enabled=true`, the application will append data to MongoDB upon startup.
 * If set to `false`, no data will be appended.
 
-### Running the Application
+### 5. **Azure Managed Identity Setup** - [Reference](env_variables.md)
+
+### 4. Running the Application
 Once you have added the required configurations in your `application.properties`, you can run the application using the following command:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-### Build the Application
+### 5. Build the Application
 Once you have added the required configurations in your `application.properties`, you can run the application using the following command:
 
 ```bash
