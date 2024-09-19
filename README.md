@@ -19,7 +19,7 @@ This repository contains the "Content Generator for Marketing Campaign", a multi
 
 ![images/AppService.png](images/AppService.png)
 
-## AKS
+## Azure Kubernetes Service (AKS)
 
 ![images/AKS.png](images/AKS.png)
 
