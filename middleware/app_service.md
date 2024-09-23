@@ -48,21 +48,7 @@ az webapp deployment user set --user-name <username> --password <password>
 ```
 Replace `<username>` and `<password>` with your preferred credentials.
 
-### 6. Set Environment Variables (Key Vault and Identity)
-Configure the following environment variables needed for accessing Azure Key Vault and using Managed Identities:
-
-```bash
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_KEYVAULT_URI=<your-keyvault-uri>
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_CLIENT_ID=<your-client-id>
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_CLIENT_SECRET=<your-client-secret>
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_TENANT_ID=<your-tenant-id>
-```
-
-* Replace `<your-keyvault-uri>` with your Azure Key Vault URI (e.g., `https://<your-keyvault-name>.vault.azure.net/`).
-* Replace `<your-client-id>` with your Azure AD app's client ID.
-* Replace `<your-client-secret>` with your Azure AD app's client secret.
-* Replace `<your-tenant-id>` with your Azure AD tenant ID.
-
+### 6. Key Vault Secret Access - [Link](../backend/app_service.md#6-key-vault-secret-access)
 
 ### 7. Deploy the WAR File
 #### Build the Application - [Reference](env_variables.md)
