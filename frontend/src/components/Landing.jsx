@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/material";
-import {Fragment, useEffect} from "react";
+import {Fragment} from "react";
 import { useSelector } from "react-redux";
 import { Email } from "./Email";
 import { SocialMedia } from "./SocialMedia";

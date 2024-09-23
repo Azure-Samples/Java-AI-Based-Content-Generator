@@ -17,7 +17,7 @@ The Middleware Service provides content generation and embedding vector APIs. It
     ```
 
 2. **Configure the Application Properties**:
-   To avoid port conflicts, ensure the `server.port` is set to `8081` in the `application.properties` file:
+   To avoid port conflicts, ensure the `server.port` is set to `8081` in the [`application.properties`](./src/main/resources/application.properties) file:
    ```properties
    server.port=8081
    ```
@@ -33,9 +33,6 @@ The Middleware Service provides content generation and embedding vector APIs. It
    * Set the required Azure environment variables to access secrets from Key Vault:
    ```bash
    export AZURE_KEYVAULT_URL=<your_keyvault_url>
-   export AZURE_TENANT_ID=<your_tenant_id>
-   export AZURE_CLIENT_ID=<your_client_id>
-   export AZURE_CLIENT_SECRET=<your_client_secret>
    ```
 
 5. **Run the Application**:
@@ -48,6 +45,7 @@ The Middleware Service provides content generation and embedding vector APIs. It
      **Run the application**:
      ```bash
      ./mvnw spring-boot:run
+     ```
    The service will now be running at `http://localhost:8081`.
 
 

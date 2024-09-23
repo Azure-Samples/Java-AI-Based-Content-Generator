@@ -24,7 +24,7 @@ export const Header = () => {
 
   useEffect(() => {
     setAccountInfo(msalInstance.getActiveAccount());
-  }, [msalInstance]);
+  }, []);
 
   const getPersonaString = (val) => {
     if (!!!val || val === "") {
