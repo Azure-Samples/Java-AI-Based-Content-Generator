@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public class ProductEmbeddingAdapter {
 
-    private final com.example.content_generator.dataservice.service.ApiCallService apiCallService;
+    private final ApiCallService apiCallService;
 
     public ProductEmbeddingAdapter(ApiCallService apiCallService) {
         this.apiCallService = apiCallService;

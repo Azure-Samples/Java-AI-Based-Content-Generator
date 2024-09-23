@@ -52,9 +52,6 @@ Each service can be run locally with specific instructions provided in each serv
 To run locally, set the following environment variables to access Azure Key Vault:
 ```bash
 export AZURE_KEYVAULT_URL=<your_keyvault_url>
-export AZURE_TENANT_ID=<your_tenant_id>
-export AZURE_CLIENT_ID=<your_client_id>
-export AZURE_CLIENT_SECRET=<your_client_secret>
 ```
 ### Key Vault Setup
 * [Instructions for Key Vault setup, App Registration, and secret access](key_vault_setup.md)

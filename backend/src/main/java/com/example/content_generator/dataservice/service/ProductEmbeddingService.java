@@ -71,7 +71,7 @@ public class ProductEmbeddingService {
         // Calculate cosine similarity and filter based on score > 0.85
         List<ProductEmbedding> similarProductEmbeddings = allEmbeddings.stream()
                 .sorted(Comparator.comparingDouble(embedding -> -cosineSimilarity(queryEmbedding, embedding.getEmbedding()))) // Sort by similarity in descending order
-                .filter(embedding -> cosineSimilarity(queryEmbedding, embedding.getEmbedding()) > 0.85)
+                .filter(embedding -> cosineSimilarity(queryEmbedding, embedding.getEmbedding()) > 0.85) // Only keep embeddings with a cosine similarity greater than 0.85, as this indicates strong similarity to the queryEmbedding.
                 .limit(5)  // Limit to top 5 results
                 .toList();
 

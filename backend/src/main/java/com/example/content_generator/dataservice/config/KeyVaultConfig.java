@@ -1,5 +1,7 @@
 package com.example.content_generator.dataservice.config;
 
+import com.azure.core.credential.TokenCredential;
+import com.azure.identity.AzureCliCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
@@ -15,9 +17,17 @@ public class KeyVaultConfig {
 
     @Bean
     public SecretClient secretClient() {
+        // Use an environment variable or some other method to determine the environment
+        String environment = System.getenv("ENVIRONMENT");
+
+        // Default to AzureCliCredential if the environment is null or LOCAL
+        TokenCredential credential = (environment == null || "LOCAL".equalsIgnoreCase(environment))
+                ? new AzureCliCredentialBuilder().build()
+                : new DefaultAzureCredentialBuilder().build();
+
         return new SecretClientBuilder()
                 .vaultUrl(vaultUrl)
-                .credential(new DefaultAzureCredentialBuilder().build())
+                .credential(credential)
                 .buildClient();
     }
 }
