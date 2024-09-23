@@ -95,22 +95,85 @@ This will allow your App Service to access Key Vault secrets using Managed Ident
 
 
 
-### 4. Use Managed Identity for Azure Kubernetes Service (AKS)
+### 4. Azure Key Vault with AKS
 
-For applications running on AKS, follow these steps to configure Managed Identity:
 
-1. **Create and Assign a User-Assigned Managed Identity::**
-   * Create a user-assigned managed identity in the Azure Portal or using Azure CLI.
-   * Go to your AKS cluster in the Azure Portal.
-   * Under **Settings**, select **Managed identity**.
-   * Assign the user-assigned managed identity to your AKS cluster.
+* #### 4.1 Using Managed Identity in Azure Kubernetes Service (AKS)
 
-2. **Configure Secrets Store CSI Driver:**
-    * Install the Secrets Store CSI driver and Azure Key Vault provider in your AKS cluster.
-    * Configure a SecretProviderClass to specify the user-assigned managed identity and Key Vault details.
-    * Create a Kubernetes SecretProviderClass resource and configure your pods to use it.
+  Reference: [Use a managed identity in Azure Kubernetes Service (AKS)](https://learn.microsoft.com/en-us/azure/aks/use-managed-identity)
 
-For more detailed steps, refer to Azure’s guide on using [Secrets Store CSI driver with AKS](https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-identity-access?tabs=azure-portal&pivots=access-with-a-user-assigned-managed-identity).
+
+  **Azure Portal:**
+
+   1. **Assign Managed Identity to AKS:**
+      * Go to the Azure Portal.
+      * Navigate to your AKS Cluster.
+      * Under **Settings**, select **Managed Identity**.
+      * Enable the system-assigned Managed Identity for your AKS cluster.
+
+   2. **Grant Access to Key Vault:**
+      * Go to your Azure Key Vault.
+      * Under **Access policies**, create a new access policy.
+      * Select the **Secret Management** template.
+      * Under **Principal**, select the Managed Identity of your AKS cluster.
+      * Save the changes to grant AKS access to the Key Vault secrets.
+
+   3. **Configure Pod Identity on AKS:**
+      * To access the Key Vault from within AKS pods, you'll need to configure AAD Pod Identity.
+      * Go to the AKS Cluster page and look for **AAD Pod Identity** under **Settings**. Follow the instructions to install and configure the pod identity for your workload.
+
+   4. **Access Key Vault Secrets from the Application:**
+      * Once the Managed Identity is set up and access policies are configured, you can use the same Java Spring Boot code to retrieve secrets from Azure Key Vault. Refer to the earlier Java code in the Key Vault Secret Access section.
+
+   5. **Configure Environment Variables in AKS:**
+      * Go to your AKS cluster in the Azure Portal.
+      * Navigate to **Workloads** and select the appropriate **Deployment** or **Pod**.
+      * Set the `AZURE_KEYVAULT_URL` as an environment variable for the application, pointing to your Key Vault URL.
+
+  **CLI:**
+
+   1. **Enable Managed Identity for AKS:**
+      * To enable Managed Identity when creating an AKS cluster, use the following command:
+        ```bash
+        az aks create --resource-group <resource-group-name> --name <aks-cluster-name> --enable-managed-identity
+        ```
+      * If AKS is already deployed, enable Managed Identity with:
+        ```bash
+        az aks update --resource-group <resource-group-name> --name <aks-cluster-name> --enable-managed-identity
+        ```
+
+   2. **Grant Access to Key Vault:**
+      * Get AKS Managed Identity's client ID:
+        ```bash
+        IDENTITY_CLIENT_ID=$(az aks show --resource-group <resource-group-name> --name <aks-cluster-name> --query identityProfile.kubeletidentity.clientId --output tsv)
+        ```
+      * Grant AKS Managed Identity access to Key Vault:
+        ```bash
+        az keyvault set-policy --name <key-vault-name> --secret-permissions get list --object-id $IDENTITY_CLIENT_ID
+        ```
+
+   3. **AAD Pod Identity on AKS:**
+      * You can mount the secrets directly into Kubernetes pods or use environment variables.
+
+
+
+
+* #### 4.2 Azure Key Vault Secrets Store CSI Driver with Azure Identity Provider
+  For applications running on AKS, follow these steps to configure Managed Identity:
+
+   1. **Create and Assign a User-Assigned Managed Identity::**
+      * Create a user-assigned managed identity in the Azure Portal or using Azure CLI.
+      * Go to your AKS cluster in the Azure Portal.
+      * Under **Settings**, select **Managed identity**.
+      * Assign the user-assigned managed identity to your AKS cluster.
+
+   2. **Configure Secrets Store CSI Driver:**
+      * Install the Secrets Store CSI driver and Azure Key Vault provider in your AKS cluster.
+      * Configure a SecretProviderClass to specify the user-assigned managed identity and Key Vault details.
+      * Create a Kubernetes SecretProviderClass resource and configure your pods to use it.
+
+  For more detailed steps, refer to Azure’s guide on using [Secrets Store CSI driver with AKS](https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-identity-access?tabs=azure-portal&pivots=access-with-a-user-assigned-managed-identity).
+
 
 
 
@@ -150,3 +213,4 @@ Once these secrets are added, they can be accessed by your application using the
 After setting up the Key Vault and App Registration, export the following environment variables in your local environment:
 ```bash
 export AZURE_KEYVAULT_URL=<your_keyvault_url>
+```
