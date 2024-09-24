@@ -34,16 +34,16 @@ The backend connects to Azure Blob Storage and Azure Cosmos MongoDB using Key Va
    ```
 
 4. **Run the Application**:
-    * Start the backend service using the following command:
-
-      **Install dependencies**:
-      ```bash
-      ./mvnw clean install
-      ```
-      **Run the application**:
-      ```bash
-      ./mvnw spring-boot:run
-      ```
+      * [Dependency summary](./dependencies-summary.md)
+      * Start the backend service using the following command:
+        * **Install dependencies**:
+          ```bash
+          ./mvnw clean install
+          ```
+        * **Run the application**:
+          ```bash
+          ./mvnw spring-boot:run
+          ```
 
    The service will now be running at `http://localhost:8080`.
 

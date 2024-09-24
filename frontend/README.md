@@ -29,6 +29,7 @@ The Frontend Service is a ReactJS-based application that allows users to submit 
    REACT_APP_SERVICE_ACCESS_KEY=<service-access-key>  # Not needed for local setup
    ```
 4. **Install dependencies**:
+   * [Dependency Summary](dependencies-summary.md)
     ```bash
     npm install
     ```

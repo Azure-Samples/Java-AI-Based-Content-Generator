@@ -36,18 +36,18 @@ The Middleware Service provides content generation and embedding vector APIs. It
    ```
 
 5. **Run the Application**:
-   * Ensure that the backend service is running on port `8080`.
-   * Start the middleware service using the following command:
-     **Install dependencies**:
-     ```bash
-     ./mvnw clean install
-     ```
-     **Run the application**:
-     ```bash
-     ./mvnw spring-boot:run
-     ```
-   The service will now be running at `http://localhost:8081`.
+    * [Dependency summary](./dependencies-summary.md)
+    * Start the backend service using the following command:
+        * **Install dependencies**:
+          ```bash
+          ./mvnw clean install
+          ```
+        * **Run the application**:
+          ```bash
+          ./mvnw spring-boot:run
+          ```
 
+   The service will now be running at `http://localhost:8081`.
 
 
 ## Key Vault Secrets
