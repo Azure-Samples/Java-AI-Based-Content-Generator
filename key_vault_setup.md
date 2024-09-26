@@ -33,45 +33,28 @@ For local development, you can use Azure CLI credentials to authenticate with Az
       ```bash
       az login
       ```
-    * Follow the prompts to complete the authentication process. This command authenticates your local CLI session and stores the necessary credentials.
+    * This command will open a browser window prompting you to authenticate with your Azure credentials. If the browser does not open automatically, follow the instructions in the CLI to complete the login process.
+    * After successful login, Azure CLI stores the necessary credentials locally, allowing your application to access Azure resources based on your authenticated session.
 
-3. **Modify Your Spring Boot Application Configuration:**
-   * In your Spring Boot application, update the KeyVaultConfig to use `AzureCliCredentialBuilder` for local development and `DefaultAzureCredentialBuilder` for other environments:
-   ```java
+3. **Configure Spring Cloud Azure:** ([Spring Cloud Azure authentication](https://microsoft.github.io/spring-cloud-azure/current/reference/html/index.html#authentication))
+    * Ensure that you have the [Spring Cloud Azure](https://spring.io/projects/spring-cloud-azure#overview) dependencies added to your project. Spring Cloud Azure provides integration with Azure services and supports using different credential types.
+    * By default, Spring Cloud Azure will attempt to use multiple credential builders to authenticate, including:
+      * `EnvironmentCredential`
+      * `WorkloadIdentityCredential`
+      * `ManagedIdentityCredential`
+      * `SharedTokenCacheCredential`
+      * `IntelliJCredential`
+      * `VSCodeCredential`
+      * `AzureCliCredential`
+    * For local development, the application will use AzureCliCredential if no other credentials are configured. This ensures that your local environment can authenticate and interact with Azure services seamlessly.
 
-   @Configuration
-   public class KeyVaultConfig {
-   
-       @Value("${azure.keyvault.uri}")
-       private String vaultUrl;
-   
-       @Bean
-       public SecretClient secretClient() {
-           // Use an environment variable or some other method to determine the environment
-           String environment = System.getenv("ENVIRONMENT");
-   
-           // Default to AzureCliCredential if the environment is null or LOCAL
-           TokenCredential credential = (environment == null || "LOCAL".equalsIgnoreCase(environment))
-                   ? new AzureCliCredentialBuilder().build()
-                   : new DefaultAzureCredentialBuilder().build();
-   
-           return new SecretClientBuilder()
-                   .vaultUrl(vaultUrl)
-                   .credential(credential)
-                   .buildClient();
-       }
-   }
+4. **Verify the Configuration:**
+    * To ensure that your CLI is correctly configured, you can run:
+    ```bash
+      az login
+      ```
+   * This command displays the details of the currently authenticated account. Ensure that it matches the expected account used for your Azure resources. 
 
-   ```
-
-4. **Set Environment Variables:**
-   * In your local development environment, ensure that the `ENVIRONMENT` variable is set to `LOCAL` or left as `null` for automatic local development detection.
-   ```bash
-   export ENVIRONMENT=LOCAL
-   ```
-
-5. **Access Key Vault Secrets:**
-   * After running `az login`, your application will use the Azure CLI session to authenticate with Azure Key Vault and retrieve secrets during local development.
 
 ### 3. Use Managed Identity for Azure App Service
 
