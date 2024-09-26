@@ -102,6 +102,63 @@ az webapp config appsettings set --resource-group <resource-group-name> --name <
 ```
 
 ### 7. Deploy the WAR File
+
+#### 7.1 Using Maven Plugin
+```bash
+./mvnw clean package azure-webapp:deploy
+```
+
+This command will:
+* Deploy the WAR file to your specified Azure Web App.
+* Ensure that the Azure configuration in your `pom.xml` is used to target the correct Azure resources.
+
+> ##### Configuration Requirements
+Ensure that you have the **Azure Web App Maven Plugin** set up in your `pom.xml`. Below is an example configuration that you should include in the `build` section of your `pom.xml` if not already present:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-webapp-maven-plugin</artifactId>
+            <version>2.0.0</version> <!-- Adjust the version as needed -->
+            <configuration>
+                <resourceGroup>YourResourceGroup</resourceGroup>
+                <appName>YourAppServiceName</appName>
+                <region>YourAppServiceRegion</region>
+                <pricingTier>B1</pricingTier> <!-- Choose your pricing tier -->
+                <runtime>
+                    <os>linux</os> <!-- or windows -->
+                    <javaVersion>Java 21</javaVersion> <!-- Choose Java version -->
+                    <webContainer>tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
+                </runtime>
+                <deployment>
+                    <resources>
+                        <resource>
+                            <directory>${project.basedir}/target</directory>
+                            <includes>
+                                <include>*.war</include>
+                            </includes>
+                        </resource>
+                    </resources>
+                </deployment>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+```
+
+Make sure that:
+
+* `resourceGroup` matches the Azure Resource Group where your Web App is hosted.
+* `appName` corresponds to the name of your Azure Web App.
+* `region` matches the location of your Web App (e.g., `westus`, `eastus`).
+* `javaVersion` and `webContainer` reflect your environment.
+
+
+#### 7.2 Using Azure CLI
+
 #### Build the Application - [Reference](env_variables.md)
 Once you have added the required configurations in your `application.properties`, you can run the application using the following command:
 
@@ -109,7 +166,6 @@ Once you have added the required configurations in your `application.properties`
 ./mvnw clean package
 ```
 
-#### Using Azure CLI
 Use the Azure CLI to deploy your WAR file:
 
 ```bash
