@@ -2,6 +2,8 @@ package com.example.content_generator.dataservice.repository;
 
 import com.example.content_generator.dataservice.model.Brochure;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -19,4 +21,14 @@ import java.util.List;
 
 public interface BrochureRepository extends MongoRepository<Brochure, String> {
     List<Brochure> findByProductId(String productId);
+
+
+    /**
+     * Finds brochures by a list of product IDs.
+     *
+     * @param productIds A list of product IDs.
+     * @return A list of {@link Brochure} entities associated with the given product IDs.
+     */
+    @Query("{ 'productId': { $in: ?0 } }")
+    List<Brochure> findByProductIds(List<String> productId);
 }

@@ -63,6 +63,33 @@ public class ProductEmbeddingService {
         productEmbeddingRepository.deleteById(id);
     }
 
+    /**
+     * Calculates the cosine similarity between user queries and product data, and filters based on a score threshold.
+     *
+     * <p>Note:</p>
+     * <ul>
+     *     <li><b>Cosine Similarity Threshold:</b> A threshold score of 0.85 is used to filter out less relevant results.
+     *         Products with a cosine similarity score above this threshold are considered relevant.</li>
+     *     <li><b>Handling Product Queries with Additional Words:</b> User queries may contain additional non-relevant words
+     *         that can affect the cosine similarity score. For example, in a query like "Best for you organics sale for 20%
+     *         in the winter":
+     *         <ul>
+     *             <li>The segment "Best for you organics" is recognized as the product name and may yield a cosine similarity
+     *                 score above 0.85 if it closely matches a product.</li>
+     *             <li>The additional details such as "sale for 20% in the winter" may affect the score. If these details dilute
+     *                 the relevance of the product details, the final score might fall below 0.85.</li>
+     *         </ul>
+     *     </li>
+     *     <li><b>Result Adjustment:</b> If the cosine similarity score falls below 0.85 due to non-relevant words, the product
+     *         may not appear in the result list. The algorithm may need adjustments to better account for the relevance of
+     *         product names despite additional query details.</li>
+     *     <li><b>Product Not Found:</b> If no products meet the threshold, a "Product not found" message will be returned to the user.</li>
+     * </ul>
+     *
+     * @param queryEmbedding The data for products to compare.
+     * @return A list of relevant productIds based on the cosine similarity score.
+     */
+
     public List<String> searchSimilarProductEmbeddings(Float[] queryEmbedding) {
 
         // Fetch all product embeddings
