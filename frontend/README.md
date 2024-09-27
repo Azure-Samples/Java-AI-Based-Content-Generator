@@ -1,76 +1,44 @@
-# Marketing Content Generator Frontend
+# Frontend Service
 
-This is the frontend application for the Marketing Content Generator, built using React.js. It interacts with the backend API to generate and display marketing content.
-
-## Features
-
-- User interface for interacting with the marketing content generation API.
-- Authentication using Azure AD.
-- Display and manage generated content.
+## Overview
+The Frontend Service is a ReactJS-based application that allows users to submit queries, receive AI-generated content, and view similar products. The user must log in before interacting with the chat interface.
 
 ## Prerequisites
+- Node.js
+- React
 
-- Node.js (v14 or later)
-- Yarn (recommended, but npm can also be used)
-- Azure App Registration for authentication
-
-## Getting Started
-
-1. **Clone the Repository**
-
+## Environment Setup
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/terawe/contentgenerator.git
-   cd frontend
+   git clone https://github.com/Azure-Samples/Java-AI-Based-Content-Generator
+   cd Java-AI-Based-Content-Generator/frontend
    ```
-2. **Install Dependencies**
-
-   Install the required npm packages using Yarn (or npm):
+2. **Create the `.env` file:**
+   * In the root directory of the project, there is a `.env.example` file that contains placeholder values for environment variables.
+   * Copy this file to create your own `.env` file:
+   ```bash
+   cp .env.example .env
+   ```
+3. **Replace Placeholder Values:**
+   * Open the newly created `.env` file and replace the placeholder values with the correct values for your local setup.
+   * For example:
+   ```properties
+   REACT_APP_SERVICE_BASE_URL=http://localhost:8081
+   REACT_APP_CLIENT_ID=<your-azure-app-client-id>
+   REACT_APP_CONTENT_GENERATOR_ENDPOINT=/api/v1/generate/content
+   REACT_APP_SERVICE_ACCESS_KEY=<service-access-key>  # Not needed for local setup
+   ```
+4. **Install dependencies**:
+   * [Dependency Summary](dependencies-summary.md)
     ```bash
-   yarn install
-    # or
     npm install
     ```
-3. **Setup Environment Variables**
-
-   Create a `.env` file in the root directory of your project and include the following environment variables. Refer to the [env_variables.md](env_variables.md) for more details.
-    ```properties
-    REACT_APP_SERVICE_BASE_URL=https://<your-app-service-name>.azurewebsites.net
-    REACT_APP_CLIENT_ID=<azure-app-registration-client-id-for-msal-login>
-    REACT_APP_CONTENT_GENERATOR_ENDPOINT=/api/v1/generate/content
-    REACT_APP_SERVICE_ACCESS_KEY=<service-access-key>
-    ```
-4. **Run the Application**
-
-    Start the development server with:
+5. **Run the application**:
+   * After setting up the environment variables, you can start the development server using:
     ```bash
-    yarn start
-    # or
     npm start
     ```
-   This will start the React application in development mode and you can view it at `http://localhost:3000`.
 
-5. **Build the Application**
-   To create a production build of the application, use:
-    ```bash
-    yarn build
-    # or
-    npm run build
-    ```
-## Deployment Methods
-### 1. Deploying to Azure App Service
-You can deploy the React application to Azure App Service. Detailed instructions for deploying to Azure App Service can be found in the [App Service Deployment Guide](app_service.md).
-* **Application URL**: After deployment, your application will be accessible via the provided URL from Azure App Service.
-
-### 2. Deploying to Azure Kubernetes Service (AKS)
-
-You can deploy the application to an Azure Kubernetes Service (AKS) cluster. Detailed instructions are provided in the [AKS Deployment Guide](aks.md).
-
-### Authentication
-The application uses Azure Active Directory (Azure AD) for user authentication. Ensure that the Azure AD app registration is configured correctly, and that the `REACT_APP_CLIENT_ID` is set up properly in your `.env` file.
-
-### API Integration
-The application integrates with the backend API to fetch and display content. Ensure that the `REACT_APP_SERVICE_BASE_URL` and `REACT_APP_CONTENT_GENERATOR_ENDPOINT` are correctly set to point to your backend API.
-
-### Notes
-* Ensure that the environment variables are correctly set for both development and production environments.
-
+## Deployment
+- For Azure App Service deployment, see [app_service.md](./app_service.md).
+- For AKS deployment, see [aks.md](./aks.md).

@@ -1,114 +1,66 @@
-# Marketing Content Generator Backend API
+# Middleware Service
 
-This is a backend API for generating marketing content, built using Spring Boot and integrated with Azure OpenAI.
+## Overview
+The Middleware Service provides content generation and embedding vector APIs. It connects to OpenAI services for processing user queries and exposes these APIs via Azure API Management (APIM) in production.
 
-## Features
-
-- Generate marketing content using Azure OpenAI GPT models.
-- Backend API for content generation, customizable for different marketing needs.
-
-## Prerequisites
-
-- Java 17
+## Prerequisites for Local Development
+- Java 17 or higher
 - Maven
-- Azure account with OpenAI deployed
-- Azure OpenAI API Key and Endpoint
+- Access to Azure OpenAI and Azure Key Vault
+- Backend service running locally on port 8080
 
-## Getting Started
+## Local Setup Instructions
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/Azure-Samples/Java-AI-Based-Content-Generator
+    cd Java-AI-Based-Content-Generator/middleware
+    ```
 
-## 1. **Clone the Repository**
-
-   ```bash
-   git clone https://github.com/terawe/contentgenerator.git
-   cd middleware
+2. **Configure the Application Properties**:
+   To avoid port conflicts, ensure the `server.port` is set to `8081` in the [`application.properties`](./src/main/resources/application.properties) file:
+   ```properties
+   server.port=8081
    ```
-   
-   ## Setup Environment Variables - [Reference](env_variables.md)
 
-## 2. **Configure Azure OpenAI** - [Reference](https://learn.microsoft.com/en-us/azure/ai-studio/)
+3. **Key Vault Setup**:
 
-## Chat Completion
-* Go to [Azure OpenAI](https://ai.azure.com) and deploy the GPT model.
-* Retrieve your **Azure OpenAI Endpoint URI** and **Azure OpenAI API Key** from your deployment details and add it in the key vault.
-* **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
-![images/TokenLimit.png](images/TokenLimit.png)
-![images/TokenLimit.png](images/ModelDeploymentDetails.png)
+   Before adding or accessing secrets in Key Vault, you need to follow the setup instructions in the [Azure Key Vault Setup Guide](../key_vault_setup.md), which include:
+   * Assigning the necessary **Key Vault Administrator** and **Key Vault Reader** roles.
+   * Adding the required secrets for the middleware service.
 
-## Generate Embedding
-* Go to [Azure OpenAI](https://ai.azure.com) and deploy the text embedding model.
-* Retrieve your **Azure OpenAI Endpoint URI** and **Azure OpenAI API Key** from your deployment details and add it in the key vault.
-* **Tokens per Minute Rate Limit:** Ensure you are aware of the rate limits for tokens per minute as specified in your Azure OpenAI service plan. This limit is measured in thousands of tokens per minute and helps in managing usage and avoiding overage charges.
+4. **Environment Variables for Local Development:**
 
-## 3. **Azure Key Vault Setup and App Registration**
-   * Create Azure Key Vault and Set Secrets 
-     * **Step 1: Create an Azure Key Vault**
-       * Go to the Azure Portal. 
-       * Navigate to "Create a resource" and search for "Key Vault". 
-       * Click "Create" and fill in the required details:
+   * Set the required Azure environment variables to access secrets from Key Vault:
+   ```bash
+   export AZURE_KEYVAULT_URL=<your_keyvault_url>
+   ```
+
+5. **Run the Application**:
+    * [Dependency summary](./dependencies-summary.md)
+    * Start the backend service using the following command:
+        * **Install dependencies**:
+          ```bash
+          ./mvnw clean install
           ```
-           Name: Your Key Vault name (e.g., myKeyVault)
-           Subscription: Choose your subscription
-           Resource Group: Create or select an existing resource group
-           Region: Choose the region where you want to deploy the Key Vault
-          ``` 
-       * Click "Review + create" and then "Create".
-     * **Step 2: Set Secrets in Azure Key Vault**
-       * Navigate to your Key Vault in the Azure Portal.
-       * Go to the "Secrets" section and click "Generate/Import". 
-       * Enter the name and value for each secret. Use the constants listed below for reference:
-            ```
-               BackendServiceBaseUrl
-               BackendServiceProductEndpoint
-               BackendServiceSimilarProductEndpoint
-               BackendServiceAccessKey
-               AzureOpenAiEndpointUrl
-               AzureOpenAiAccessKey
-               AzureOpenAiEmbeddingEndpointUrl
-               AzureOpenAiEmbeddingKey
-            ```
-       * Click "Create" to add each secret.
+        * **Run the application**:
+          ```bash
+          ./mvnw spring-boot:run
+          ```
 
-## 4. **Update Application Properties**
-   
-   Open the `application.properties` file ( path [src/main/resources/application.properties](src/main/resources/application.properties)) and update the following values:
+   The service will now be running at `http://localhost:8081`.
 
-## 5. **Azure Managed Identity Setup** - [Reference](env_variables.md)
 
-## 6. **Run the Application**
+## Key Vault Secrets
+The middleware service requires the following secrets in **Azure Key Vault**:
 
-   Use Maven to run the application:
-    
-```bash
-./mvnw spring-boot:run
-```
+- `BackendServiceBaseUrl`: `http://localhost:8080` (for local), or backend APIM URL (for deployment)
+- `BackendServiceProductEndpoint`: `/api/v1/product` (for local), or backend APIM endpoint
+- `BackendServiceSimilarProductEndpoint`: `/api/v1/product/similar` (for local), or backend APIM endpoint
+- `AzureOpenAiEndpointUrl` (OpenAI GPT-4o completion model **Target URI**)
+- `AzureOpenAiAccessKey` (OpenAI GPT-4o **Key**)
+- `AzureOpenAiEmbeddingEndpointUrl` (OpenAI text-embedding-3-small model **Target URI**)
+- `AzureOpenAiEmbeddingKey` (OpenAI embedding model **Key**)
 
-## 7. **Build the Application**
-
-   Use Maven to run the application:
-```bash
-./mvnw clean package
-```
-
-## Deployment Methods
-
-### 1. Deploying to Azure Kubernetes Service (AKS)
-
-You can deploy the application to an Azure Kubernetes Service (AKS) cluster. Detailed instructions are provided in the [AKS Deployment Guide](aks.md).
-
-- **API Exposure**: Once deployed, the API should be exposed via Azure API Management. For more information, refer to the [API Management Guide](api_management.md).
-
-### 2. Deploying to Azure App Service
-
-Alternatively, you can deploy the application to Azure App Service. Follow the steps outlined in the [App Service Deployment Guide](app_service.md).
-
-- **API Exposure**: Similar to the AKS deployment, the API for the App Service deployment should be exposed via Azure API Management. Details can be found in the [API Management Guide](api_management.md).
-
-## API Management
-
-Azure API Management provides a unified front-end for your application’s APIs. Regardless of whether you deploy to AKS or App Service, using Azure API Management allows you to:
-
-- Securely expose your APIs
-- Monitor and analyze API usage
-- Apply policies for rate limiting, authorization, etc.
-
-More details can be found in the [API Management Guide](../api_management.md).
+## Deployment
+- For Azure App Service deployment, see [app_service.md](./app_service.md).
+- For AKS deployment, see [aks.md](./aks.md).

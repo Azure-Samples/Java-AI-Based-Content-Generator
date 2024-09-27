@@ -1,49 +1,57 @@
-# Content Generator for Marketing Purposes
+# AI-Based Content Generation Application
 
-This repository contains the "Content Generator for Marketing Campaign", a multi-application system designed to generate marketing content based on user selection. The system consists of three separate applications:
+## Introduction
+This repository contains an AI-based content generation application with three core services:
+- **Backend Service**: Exposes customer, product, and product vector APIs (for finding similar products) via backend API Management (APIM).
+- **Middleware Service**: Provides content generation and embedding vector APIs, using OpenAI services to process user queries.
+- **Frontend Service**: A ReactJS application offering a chat interface where users can submit queries, interact with the system, and receive AI-generated content.
 
-1. **Backend**: Handles data management and stores content templates.
-2. **Middleware**: Provides AI services for content generation.
-3. **Frontend**: A user interface that allows users to generate content by selecting the type (e.g., mail template campaign, social media campaign, article/blog).
+Each service uses Azure Key Vault and Managed Identity for secrets management in production environments. For local development, specific environment variables are required to authenticate against Key Vault.
 
-## Applications Overview
+## Architecture Diagrams
+Include the architecture diagrams here:
+1. **Azure App Service Architecture**
 
-| Application | Directory                | Purpose                                                                                            |
-|-------------|--------------------------|----------------------------------------------------------------------------------------------------|
-| Backend     | [backend](backend)       | Manages data, including storing and retrieving content templates.                                  |
-| Middleware  | [middleware](middleware) | Interfaces with AI services to generate content based on user input.                               |
-| Frontend    | [frontend](./frontend)   | Provides a user-friendly interface for selecting content types and generating marketing materials. |
+![App Service Architecture](images/AppService.png)
 
-# Architecture Diagram
-## App Service
+2. **Azure Kubernetes Service (AKS) Architecture**
+![AKS Architecture](images/AKS.png)
 
-![images/AppService.png](images/AppService.png)
+## Data Flow Diagram
+Illustrates the interaction between frontend, middleware, backend, and external services such as OpenAI and Azure resources.
 
-## Azure Kubernetes Service (AKS)
-
-![images/AKS.png](images/AKS.png)
-
-## Data Flow
-
-![images/DataFlow.png](images/DataFlow.png)
+![Data Flow Diagram](images/DataFlow.png)
 
 ## Getting Started
+### Prerequisites
+- Azure account with necessary permissions
+- Managed Identity configured for accessing Key Vault secrets
+- Azure API Management configured for both backend and middleware services
+- Node.js and React for frontend service
+- Java Spring Boot for backend and middleware services
 
-Each application has its own setup instructions and dependencies. Refer to the respective README file in each folder for more details.
+### Setup Instructions
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/Azure-Samples/Java-AI-Based-Content-Generator
+    cd Java-AI-Based-Content-Generator
+    ```
 
-### Backend
+2. **Service Setup**:
+   - [Backend Setup](./backend/README.md)
+   - [Middleware Setup](./middleware/README.md)
+   - [Frontend Setup](./frontend/README.md)
 
-- Navigate to the [backend README](backend/README.md) for data management setup and instructions.
+## Running Locally
+Each service can be run locally with specific instructions provided in each service folder.
 
-### Middleware
+**Local Version Architecture**
+![Local Architecture](images/Local.png)
 
-- Navigate to the [middleware README](middleware/README.md) for AI services setup and instructions.
-
-### Frontend
-
-- Navigate to the [frontend README](frontend/README.md) for UI setup and instructions, allowing users to select content types and generate marketing materials.
-
-
-## Price Estimation
-- [App Service](https://azure.com/e/9ace011a0f4241db809253649e076541)
-- [AKS](https://azure.com/e/7db212126c93457c9a35fea2b711166f)
+### Local Environment Variables
+To run locally, set the following environment variables to access Azure Key Vault:
+```bash
+export AZURE_KEYVAULT_URL=<your_keyvault_url>
+```
+### Key Vault Setup
+* [Instructions for Key Vault setup, App Registration, and secret access](key_vault_setup.md)

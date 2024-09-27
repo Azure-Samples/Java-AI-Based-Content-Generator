@@ -48,23 +48,117 @@ az webapp deployment user set --user-name <username> --password <password>
 ```
 Replace `<username>` and `<password>` with your preferred credentials.
 
-### 6. Set Environment Variables (Key Vault and Identity)
-Configure the following environment variables needed for accessing Azure Key Vault and using Managed Identities:
+### 6. Key Vault Secret Access
+To access **Azure Key Vault** secrets using **Managed Identity** in your Java Spring Boot application deployed to **Azure App Service**, follow these steps:
 
+### _6.1 Assign Managed Identity to the App Service_ 
+* Go to the Azure Portal. 
+* Navigate to your App Service. 
+* Under the "Identity" blade, enable the "System-assigned" Managed Identity. 
+* This will automatically register the identity with Azure Active Directory (AAD).
+
+![img.png](images/6_1.png)
+
+**CLI:**
 ```bash
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_KEYVAULT_URI=<your-keyvault-uri>
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_CLIENT_ID=<your-client-id>
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_CLIENT_SECRET=<your-client-secret>
-az webapp config appsettings set --resource-group <your-resource-group> --name <your-webapp-name> --settings AZURE_TENANT_ID=<your-tenant-id>
+# Assign a System-assigned Managed Identity to the App Service
+az webapp identity assign --resource-group <resource-group-name> --name <app-service-name>
+
+```
+### _6.2 Grant Access to Key Vault_
+* Go to your **Azure Key Vault** in the Azure Portal. 
+* Under "Access policies," create a new access policy. 
+* Choose the "Secret Management" template. 
+* Under "Principal," select the Managed Identity of your App Service. 
+* Save the configuration to allow your App Service access to the secrets.
+
+![img.png](images/6_2_1.png)
+![img.png](images/6_2_2.png)
+![img_1.png](images/6_2_3.png)
+![img_2.png](images/6_2_4.png)
+![img_3.png](images/6_2_5.png)
+![img_4.png](images/6_2_6.png)
+
+CLI:
+```bash
+# Get the Managed Identity's client ID
+IDENTITY_CLIENT_ID=$(az webapp identity show --resource-group <resource-group-name> --name <app-service-name> --query principalId --output tsv)
+
+# Grant access to the Key Vault for the Managed Identity
+az keyvault set-policy --name <key-vault-name> --secret-permissions get list --object-id $IDENTITY_CLIENT_ID
+
 ```
 
-* Replace `<your-keyvault-uri>` with your Azure Key Vault URI (e.g., `https://<your-keyvault-name>.vault.azure.net/`).
-* Replace `<your-client-id>` with your Azure AD app's client ID.
-* Replace `<your-client-secret>` with your Azure AD app's client secret.
-* Replace `<your-tenant-id>` with your Azure AD tenant ID.
+### _6.3 Configure App Service Environment Variable_
+Ensure that the following environment variables are set in your Azure App Service configuration:
+* `AZURE_KEYVAULT_URL` (your Key Vault URL)
 
+
+**CLI:**
+```bash
+# Set the environment variable in App Service
+az webapp config appsettings set --resource-group <resource-group-name> --name <app-service-name> --settings AZURE_KEYVAULT_URL=https://<key-vault-name>.vault.azure.net/
+
+```
 
 ### 7. Deploy the WAR File
+
+#### 7.1 Using Maven Plugin
+```bash
+./mvnw clean package azure-webapp:deploy
+```
+
+This command will:
+* Deploy the WAR file to your specified Azure Web App.
+* Ensure that the Azure configuration in your `pom.xml` is used to target the correct Azure resources.
+
+> ##### Configuration Requirements
+Ensure that you have the **Azure Web App Maven Plugin** set up in your `pom.xml`. Below is an example configuration that you should include in the `build` section of your `pom.xml` if not already present:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-webapp-maven-plugin</artifactId>
+            <version>2.0.0</version> <!-- Adjust the version as needed -->
+            <configuration>
+                <resourceGroup>YourResourceGroup</resourceGroup>
+                <appName>YourAppServiceName</appName>
+                <region>YourAppServiceRegion</region>
+                <pricingTier>B1</pricingTier> <!-- Choose your pricing tier -->
+                <runtime>
+                    <os>linux</os> <!-- or windows -->
+                    <javaVersion>Java 21</javaVersion> <!-- Choose Java version -->
+                    <webContainer>tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
+                </runtime>
+                <deployment>
+                    <resources>
+                        <resource>
+                            <directory>${project.basedir}/target</directory>
+                            <includes>
+                                <include>*.war</include>
+                            </includes>
+                        </resource>
+                    </resources>
+                </deployment>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+```
+
+Make sure that:
+
+* `resourceGroup` matches the Azure Resource Group where your Web App is hosted.
+* `appName` corresponds to the name of your Azure Web App.
+* `region` matches the location of your Web App (e.g., `westus`, `eastus`).
+* `javaVersion` and `webContainer` reflect your environment.
+
+
+#### 7.2 Using Azure CLI
+
 #### Build the Application - [Reference](env_variables.md)
 Once you have added the required configurations in your `application.properties`, you can run the application using the following command:
 
@@ -72,11 +166,10 @@ Once you have added the required configurations in your `application.properties`
 ./mvnw clean package
 ```
 
-#### Using Azure CLI
 Use the Azure CLI to deploy your WAR file:
 
 ```bash
-az webapp deployment source config-zip --resource-group <your-resource-group> --name <your-webapp-name> --src ./target/backend.war
+az webapp deploy --resource-group <your-resource-group> --name <your-webapp-name> --src-path ./target/backend.war --type war --async true
 ```
 
 ### 8. Verify the Deployment
