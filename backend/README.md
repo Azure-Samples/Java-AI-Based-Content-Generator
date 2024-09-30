@@ -9,7 +9,7 @@ The Backend Service provides the following APIs:
 The backend connects to Azure Blob Storage and Azure Cosmos MongoDB using Key Vault references with Managed Identity.
 
 ## Prerequisites
-- Java 21
+- Java 17
 - Maven
 - Azure Key Vault with necessary secrets
 - Managed Identity configured in Azure

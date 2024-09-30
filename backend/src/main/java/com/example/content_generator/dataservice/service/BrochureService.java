@@ -18,17 +18,17 @@ import java.util.UUID;
 public class BrochureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrochureService.class);
-    private final BlobContainerClient containerClient;
+    private final BlobContainerClient blobContainerClient;
 
     public BrochureService(BlobContainerClient containerClient) {
-        this.containerClient = containerClient;
+        this.blobContainerClient = containerClient;
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
         try {
             // Create a unique blob name
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            BlobClient blobClient = containerClient.getBlobClient(fileName);
+            BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
             // Upload the file
             blobClient.upload(file.getInputStream(), file.getSize(), true);
@@ -48,7 +48,7 @@ public class BrochureService {
 
     public void deleteFile(String fileName) {
         try {
-            BlobClient blobClient = containerClient.getBlobClient(fileName);
+            BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
             blobClient.delete();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());

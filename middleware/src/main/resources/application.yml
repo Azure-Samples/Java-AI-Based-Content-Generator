@@ -1,7 +1,10 @@
-spring.application.name=middleware
-
-# Spring Cloud Azure - Key Vault
-spring.cloud.azure.keyvault.endpoint=${AZURE_KEYVAULT_URI}
+spring:
+  application:
+    name: middleware
+  cloud:
+    azure:
+      keyvault:
+        endpoint: ${AZURE_KEYVAULT_URI}
 
 ## Application Configuration
 
@@ -9,4 +12,11 @@ spring.cloud.azure.keyvault.endpoint=${AZURE_KEYVAULT_URI}
 ## Uncomment the line below to change the port number for local development.
 ## This will avoid conflicts with other Java services running on the same port.
 ## For example, set the port to 8081 if the default port 8080 is in use.
-# server.port=8081
+
+server:
+  port: 8081
+
+#logging:      # Enable Debug Log
+#  level:
+#    org.springframework.cloud.azure: DEBUG
+#    com.azure: DEBUG
