@@ -1,5 +1,5 @@
 # Use an official JDK base image
-FROM mcr.microsoft.com/openjdk/jdk:21-mariner
+FROM mcr.microsoft.com/openjdk/jdk:17-mariner
 
 # Set the working directory
 WORKDIR /app

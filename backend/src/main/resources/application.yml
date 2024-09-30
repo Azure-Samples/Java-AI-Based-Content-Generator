@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: backend
+  cloud:
+    azure:
+      keyvault:
+        endpoint: ${AZURE_KEYVAULT_URI}
+        secret:
+          property-source-enabled: true # Enables loading Key Vault secrets into Spring properties
+          property-sources:
+            - name: "StorageAccountName"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "StorageContainerName"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "AzureStorageConnectionString"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "AzureCosmosConnectionString"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "MongoDBDatabaseName"
+              endpoint: ${AZURE_KEYVAULT_URI}
+      storage:
+        account-name: ${StorageAccountName}  # Name of the secret in Key Vault for storage account
+        blob:
+          container-name: ${StorageContainerName}  # Name of the secret in Key Vault for container name
+          connection-string: ${AzureStorageConnectionString}
+  data:
+    mongodb:
+      uri: ${AzureCosmosConnectionString}
+      database: ${MongoDBDatabaseName}
+
+data:
+  customer:
+    path: src/main/resources/static/customer/data.json
+  product:
+    path: src/main/resources/static/product/data.json
+  append:
+    enabled: true
+
+#logging:      # Enable Debug Log
+#  level:
+#    org.springframework.cloud.azure: DEBUG
+#    com.azure: DEBUG
+

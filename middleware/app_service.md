@@ -72,14 +72,16 @@ Ensure that you have the **Azure Web App Maven Plugin** set up in your `pom.xml`
             <artifactId>azure-webapp-maven-plugin</artifactId>
             <version>2.0.0</version> <!-- Adjust the version as needed -->
             <configuration>
-                <resourceGroup>YourResourceGroup</resourceGroup>
-                <appName>YourAppServiceName</appName>
-                <region>YourAppServiceRegion</region>
+                <!-- Optional: If not mentioned, it will pick the default subscription -->
+                <subscriptionId>SUBSCRIPTION_ID</subscriptionId> <!-- If it is not mentioned it will pick default -->
+                <resourceGroup>RESOURCE_GROUP_NAME</resourceGroup>
+                <appName>APP_SERVICE_NAME</appName>
+                <region>REGION</region>
                 <pricingTier>B1</pricingTier> <!-- Choose your pricing tier -->
                 <runtime>
                     <os>linux</os> <!-- or windows -->
-                    <javaVersion>Java 21</javaVersion> <!-- Choose Java version -->
-                    <webContainer>tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
+                    <javaVersion>Java 17</javaVersion> <!-- Choose Java version -->
+                    <webContainer>Tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
                 </runtime>
                 <deployment>
                     <resources>

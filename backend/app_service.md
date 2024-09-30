@@ -4,7 +4,7 @@
 
 1. Ensure you have an Azure account.
 2. Install [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) if not already installed.
-3. Install Java JDK 21 and [Maven](https://maven.apache.org/install.html).
+3. Install Java JDK 17 and [Maven](https://maven.apache.org/install.html).
 4. Have a WAR file ready for deployment, named `backend.war`.
 
 
@@ -36,7 +36,7 @@ Replace `<your-app-service-plan>` with your desired plan name.
 Create a Web App instance:
 
 ```bash
-az webapp create --resource-group <your-resource-group> --plan <your-app-service-plan> --name <your-webapp-name> --runtime "JAVA|21-java21" --deployment-local-git
+az webapp create --resource-group <your-resource-group> --plan <your-app-service-plan> --name <your-webapp-name> --runtime "JAVA|17-java17" --deployment-local-git
 ```
 Replace `<your-webapp-name>` with your desired web app name. Make sure it’s unique within Azure.
 
@@ -123,14 +123,16 @@ Ensure that you have the **Azure Web App Maven Plugin** set up in your `pom.xml`
             <artifactId>azure-webapp-maven-plugin</artifactId>
             <version>2.0.0</version> <!-- Adjust the version as needed -->
             <configuration>
-                <resourceGroup>YourResourceGroup</resourceGroup>
-                <appName>YourAppServiceName</appName>
-                <region>YourAppServiceRegion</region>
+                <!-- Optional: If not mentioned, it will pick the default subscription -->
+                <subscriptionId>SUBSCRIPTION_ID</subscriptionId> <!-- If it is not mentioned it will pick default -->
+                <resourceGroup>RESOURCE_GROUP_NAME</resourceGroup>
+                <appName>APP_SERVICE_NAME</appName>
+                <region>REGION</region>
                 <pricingTier>B1</pricingTier> <!-- Choose your pricing tier -->
                 <runtime>
                     <os>linux</os> <!-- or windows -->
-                    <javaVersion>Java 21</javaVersion> <!-- Choose Java version -->
-                    <webContainer>tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
+                    <javaVersion>Java 17</javaVersion> <!-- Choose Java version -->
+                    <webContainer>Tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
                 </runtime>
                 <deployment>
                     <resources>
