@@ -1,10 +1,19 @@
 package com.example.content_generator.dataservice.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 
 public class DynamicMapper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicMapper.class);
+
     public static <T, U> U mapToModel(T dto, Class<U> modelClass) {
+        if (dto == null || modelClass == null) {
+            throw new IllegalArgumentException("DTO and model class must not be null");
+        }
+
         U modelInstance = null;
         try {
             // Create a new instance of the model class
@@ -24,13 +33,17 @@ public class DynamicMapper {
                     modelField.setAccessible(true); // Allow access to private fields
 
                     // Set the value of the field in the model
-                    modelField.set(modelInstance, value);
+                    if (modelField.getType().isAssignableFrom(dtoField.getType())) {
+                        modelField.set(modelInstance, value);
+                    } else {
+                        LOGGER.warn("Type mismatch for field: {}", dtoField.getName());
+                    }
                 } catch (NoSuchFieldException e) {
-                    // Skip fields that don't exist in the model
+                    LOGGER.warn("Field not found in model class: {}", dtoField.getName());
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error mapping DTO to model", e);
         }
 
         return modelInstance;

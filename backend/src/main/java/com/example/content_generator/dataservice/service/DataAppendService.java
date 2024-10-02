@@ -9,6 +9,7 @@ import com.example.content_generator.dataservice.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class DataAppendService {
     private final ProductRepository productRepository;
     private final ObjectMapper objectMapper;
 
+    @Autowired
     public DataAppendService(CustomerRepository customerRepository ,ProductRepository productRepository, ObjectMapper objectMapper) {
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;

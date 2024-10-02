@@ -1,8 +1,9 @@
 package com.example.content_generator.dataservice.service;
 
-import com.example.content_generator.dataservice.util.KeyVaultConstants;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -16,17 +17,27 @@ import java.util.List;
 public class ApiCallService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiCallService.class);
-    private final WebClient webClient;
+    private WebClient webClient;
 
-    public ApiCallService(WebClient.Builder webClientBuilder, KeyVaultService keyVaultService) {
-        String baseUrl = keyVaultService.getSecretValue(KeyVaultConstants.MIDDLEWARE_SERVICE_BASE_URL);
-        String backendServiceAccessKey = keyVaultService.getSecretValue(KeyVaultConstants.MIDDLEWARE_SERVICE_ACCESS_KEY);
+    @Value("${MiddlewareServiceBaseUrl}")
+    private String baseUrl;
 
+    @Value("${MiddlewareServiceAccessKey}")
+    private String accessKey;
+
+    public ApiCallService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+
+    @PostConstruct
+    public void init() {
+        // Access and log the properties after they have been injected
         LOGGER.info("Initializing ApiCallServiceImpl with baseUrl: {}", baseUrl);
 
-        this.webClient = webClientBuilder
+        // Rebuild the WebClient with the correct baseUrl and headers
+        this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("api-key", backendServiceAccessKey) // To authenticate the middleware service in order to access it.
+                .defaultHeader("api-key", accessKey)
                 .filter((request, next) -> {
                     LOGGER.info("Request: {}", request.method().toString().toUpperCase() + " " + request.url());
                     return next.exchange(request);

@@ -5,9 +5,8 @@ import com.example.content_generator.dataservice.model.EmbeddingReq;
 import com.example.content_generator.dataservice.model.Product;
 import com.example.content_generator.dataservice.model.ProductEmbedding;
 import com.example.content_generator.dataservice.repository.ProductEmbeddingRepository;
-import com.example.content_generator.dataservice.util.KeyVaultConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -16,20 +15,21 @@ import java.util.Optional;
 
 @Service
 public class ProductEmbeddingService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductEmbeddingService.class);
 
     private final ProductEmbeddingRepository productEmbeddingRepository;
-    private final KeyVaultService keyVaultService;
     private final ProductEmbeddingAdapter productEmbeddingAdapter;
 
-    public ProductEmbeddingService(ProductEmbeddingRepository productEmbeddingRepository, KeyVaultService keyVaultService, ProductEmbeddingAdapter productEmbeddingAdapter) {
+    @Value("${MiddlewareServiceProductEmbeddingEndpoint}")
+    private String productEmbeddingEndpoint;
+
+    @Autowired
+    public ProductEmbeddingService(ProductEmbeddingRepository productEmbeddingRepository, ProductEmbeddingAdapter productEmbeddingAdapter) {
         this.productEmbeddingRepository = productEmbeddingRepository;
-        this.keyVaultService = keyVaultService;
         this.productEmbeddingAdapter = productEmbeddingAdapter;
     }
 
     public List<ProductEmbedding> getAllProductEmbeddings() {
-        return productEmbeddingRepository.findAll();
+        return (List<ProductEmbedding>) productEmbeddingRepository.findAll();
     }
 
     public Optional<ProductEmbedding> getProductEmbeddingById(String productId) {
@@ -93,7 +93,7 @@ public class ProductEmbeddingService {
     public List<String> searchSimilarProductEmbeddings(Float[] queryEmbedding) {
 
         // Fetch all product embeddings
-        List<ProductEmbedding> allEmbeddings = productEmbeddingRepository.findAll();
+        List<ProductEmbedding> allEmbeddings = (List<ProductEmbedding>) productEmbeddingRepository.findAll();
 
         // Calculate cosine similarity and filter based on score > 0.85
         List<ProductEmbedding> similarProductEmbeddings = allEmbeddings.stream()
@@ -120,16 +120,6 @@ public class ProductEmbeddingService {
     }
 
     public List<Float> fetchProductEmbeddings(Product product) {
-        String productEmbeddingEndpoint = "/api/v1/generate/embeddings";
-
-        try {
-            // Retrieve product embedding endpoint from Key Vault
-            productEmbeddingEndpoint = keyVaultService.getSecretValue(KeyVaultConstants.MIDDLEWARE_SERVICE_PRODUCT_EMBEDDING_ENDPOINT);
-        } catch (Exception e) {
-            LOGGER.error("Failed to retrieve product embedding endpoint from Key Vault: {}", e.getMessage(), e);
-            // Proceed with the default product endpoint (/api/v1/generate/embeddings)
-            LOGGER.info("Using default product embedding endpoint : {}", productEmbeddingEndpoint);
-        }
         return productEmbeddingAdapter.getProductEmbeddings(
                 productEmbeddingEndpoint,
                 new EmbeddingReq(product)).block();

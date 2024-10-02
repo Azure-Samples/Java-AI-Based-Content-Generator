@@ -1,10 +1,10 @@
 package com.example.content_generator.aiservice.service.Implementation;
 
 import com.example.content_generator.aiservice.service.ApiCallService;
-import com.example.content_generator.aiservice.service.KeyVaultService;
-import com.example.content_generator.aiservice.util.KeyVaultConstants;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -19,17 +19,27 @@ import java.util.Map;
 public class ApiCallServiceImpl implements ApiCallService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiCallServiceImpl.class);
-    private final WebClient webClient;
+    private WebClient webClient;
 
-    public ApiCallServiceImpl(WebClient.Builder webClientBuilder, KeyVaultService keyVaultService) {
-        String baseUrl = keyVaultService.getSecretValue(KeyVaultConstants.BACKEND_SERVICE_BASE_URL);
-        String backendServiceAccessKey = keyVaultService.getSecretValue(KeyVaultConstants.BACKEND_SERVICE_ACCESS_KEY);
+    @Value("${BackendServiceBaseUrl}")
+    private String baseUrl;
 
+    @Value("${BackendServiceAccessKey}")
+    private String accessKey;
+
+    public ApiCallServiceImpl(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+
+    @PostConstruct
+    public void init() {
+        // Access and log the properties after they have been injected
         LOGGER.info("Initializing ApiCallServiceImpl with baseUrl: {}", baseUrl);
 
-        this.webClient = webClientBuilder
+        // Rebuild the WebClient with the correct baseUrl and headers
+        this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("api-key", backendServiceAccessKey) // To authenticate the backend service in order to access it.
+                .defaultHeader("api-key", accessKey)
                 .filter((request, next) -> {
                     LOGGER.info("Request: {}", request.method().toString().toUpperCase() + " " + request.url());
                     return next.exchange(request);
