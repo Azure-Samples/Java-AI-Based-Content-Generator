@@ -3,10 +3,11 @@ This guide covers the steps to build, push, and deploy a Java application to Azu
 
 ## Prerequisites
 
-* Azure CLI installed and logged in 
-* Azure Kubernetes Service (AKS) and Azure Container Registry (ACR) set up 
-* Maven installed 
+* Azure CLI installed and logged in
+* Azure Kubernetes Service (AKS) and Azure Container Registry (ACR) set up
+* Maven installed
 * Docker installed
+
 
 ## Step 1: Build the Java Application
 First, build the application using Maven:
@@ -35,7 +36,14 @@ To create an AKS cluster and ACR, use the following commands:
 
 3. **Create an AKS cluster:**
    ```bash
-   az aks create --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_AKS_CLUSTER_NAME> --node-count 1 --enable-managed-identity --attach-acr <YOUR_ACR_NAME>
+   az aks create \
+    --resource-group <YOUR_RESOURCE_GROUP> \
+    --name <YOUR_AKS_CLUSTER_NAME> \
+    --attach-acr <YOUR_ACR_NAME> \
+    --enable-managed-identity \
+    --enable-oidc-issuer \
+    --enable-workload-identity \
+    --generate-ssh-keys
    ```
 Once the AKS cluster and ACR are set up, proceed with the next steps.
 
@@ -51,34 +59,26 @@ Before building the Docker image, make sure that the environment variables in yo
 To build the Docker image, use the following command:
 
 ```bash
-docker build --build-arg AZURE_KEYVAULT_URI=http://your-key-vault-url/ \
-             --build-arg AZURE_CLIENT_ID=your-client-id \
-             --build-arg AZURE_CLIENT_SECRET=your-client-secret \
-             --build-arg AZURE_TENANT_ID=your-tenant-id \
-             -t <YOUR_ACR_NAME>.azurecr.io/middleware-image:v1 .
+# ACR Login
+az acr login --name <ACR_NAME>
+
+# Set your image build version
+VERSION=1.0.1
+
+# Build docker image
+docker build -t aistudy/middleware-service:${VERSION} .
+
 ```
 
-### Login to Azure Container Registry (ACR)
-Before pushing the Docker image to ACR, you need to log in using your ACR credentials:
-
-1. **Retrieve ACR credentials**:
-
-    ```bash
-    az acr credential show --name <YOUR_ACR_NAME>
-    ```
-
-2. **Log in to ACR**:
-
-    ```bash
-    docker login <YOUR_ACR_NAME>.azurecr.io
-    ```
-   
 
 ### Push Docker Image
 Push the Docker image to your ACR:
 
 ```bash
-docker push <YOUR_ACR_NAME>.azurecr.io/middleware-image:v1
+# Tag the build image into acr repo
+docker tag aistudy/middleware-service:${VERSION} <ACR_Name>.azurecr.io/aistudy/middleware-service:${VERSION}
+
+docker push <ACR_Name>.azurecr.io/middleware-service:latest
 ```
 
 ## Step 4: Run Docker Image Locally (Optional)
@@ -90,9 +90,9 @@ docker build -t cg-middleware .
 ```
 ### Run Docker Image Locally
 ```bash
-docker run -p 8080:8080 cg-middleware
+docker run -p 8080:8081 cg-middleware
 ```
-You can access the application at **http://localhost:8080**.
+You can access the application at **http://localhost:8081**.
 
 ## Step 5: Deploy to AKS
 ### Apply Kubernetes Deployment Locally
@@ -111,30 +111,29 @@ To deploy the application to AKS, ensure your kubectl is connected to your AKS c
     ```
 2. **AKS Login**
    ```bash
-   az aks get-credentials --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_AKS_CLUSTER_NAME>
+    az aks get-credentials --resource-group <RESOURCE_GROUP_NAME> --name <AKS_NAME>
    ```
-
+## Deploy to AKS
 ```bash
 kubectl apply -f middleware-deployment.yml
 ```
 This will deploy your application to the AKS cluster.
+## Check the Status of Deployments
+
+To check the status of the deployments, use the following command:
+
+```bash
+kubectl get deployments
+kubectl get services 
+```
+This will show you the status of the deployments and services in your AKS cluster.
 
 ## Step 6: Destroy Resources (Optional)
 
 If you want to clean up and destroy the resources after you're done, you can follow these steps:
 
-1. **Delete AKS Cluster**
-   To delete the AKS cluster, use the following command:
-   ```bash 
-   az aks delete --name <YOUR_AKS_CLUSTER_NAME> --resource-group <YOUR_RESOURCE_GROUP> --yes --no-wait
-   ```
-2. **Delete ACR (Azure Container Registry)**
-   To delete the ACR, run this command:
-   ```bash 
-   az acr delete --name <YOUR_ACR_NAME> --resource-group <YOUR_RESOURCE_GROUP>
-   ```
-3. **Delete Resource Group**
-   To delete the resource group, which will also delete all associated resources, use the following command:
+**Delete Resource Group**
+To delete the resource group, which will also delete all associated resources, use the following command:
    ```bash 
    az group delete --name <YOUR_RESOURCE_GROUP> --yes --no-wait
    ```

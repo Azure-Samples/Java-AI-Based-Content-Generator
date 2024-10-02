@@ -1,30 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: react-app
+  name: frontend-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: react-app
+      app: frontend
   template:
     metadata:
       labels:
-        app: react-app
+        app: frontend
     spec:
       containers:
-        - name: react-app
-          image: <YOUR_ACR_NAME>.azurecr.io/frontend-image:v1
+        - name: middleware
+          image: <ACR_NAME>.azurecr.io/aistudy/frontend:latest
           ports:
             - containerPort: 80
+          env:
+            - name: REACT_APP_SERVICE_BASE_URL
+              value: <MIDDLEWARE_SERVICE_BASE_URL>
+            - name: REACT_APP_CLIENT_ID
+              value: <APP_CLIENT_ID>
+            - name: REACT_APP_CONTENT_GENERATOR_ENDPOINT
+              value: <CONTENT_GENERATOR_ENDPOINT>
+            - name: REACT_APP_SERVICE_ACCESS_KEY
+              value: <MIDDLEWARE_SERVICE_ACCESS_KEY>
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: react-app-service
+  name: frontend-service
 spec:
-  type: LoadBalancer
+  selector:
+    app: frontend
   ports:
     - port: 80
-  selector:
-    app: react-app
+  type: ClusterIP

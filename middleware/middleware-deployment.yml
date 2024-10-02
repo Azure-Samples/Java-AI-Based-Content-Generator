@@ -13,13 +13,13 @@ spec:
         app: middleware
     spec:
       containers:
-        - name: middleware-container
-          image: <YOUR_ACR_URL>.azurecr.io/middleware-image:v1
+        - name: middleware
+          image: <ACR_NAME>.azurecr.io/aistudy/middleware:latest
           ports:
             - containerPort: 8080
           env:
-            - name: AZURE_KEYVAULT_URL
-              value: https://<KEY_VAULT_NAME>.vault.azure.net/
+            - name: AZURE_KEYVAULT_URI
+              value: https://<KEYVAULT_NAME>.vault.azure.net/
 ---
 apiVersion: v1
 kind: Service
@@ -29,7 +29,6 @@ spec:
   selector:
     app: middleware
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 8080
-  type: LoadBalancer
+  type: ClusterIP

@@ -3,25 +3,28 @@ package com.example.content_generator.dataservice.repository;
 import com.example.content_generator.dataservice.model.Brochure;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 /**
  * BrochureRepository is responsible for providing CRUD operations
- * and custom queries for the Brochure collection in MongoDB. This repository
- * extends the MongoRepository interface, leveraging Spring Data MongoDB to
- * automatically generate the necessary methods for data access.
- * Finds brochures by the associated product ID.
- * @param productId the ID of the product
- *
- * It returns a list of brochures associated with the given product ID
+ * and custom queries for the Brochure collection in Azure Cosmos DB.
+ * This repository extends the CosmosRepository interface, leveraging
+ * Azure Spring Data Cosmos to automatically generate the necessary
+ * methods for data access.
  *
  */
 
 public interface BrochureRepository extends MongoRepository<Brochure, String> {
-    List<Brochure> findByProductId(String productId);
 
+    /**
+     * Finds brochures by the associated product ID.
+     *
+     * @param productId the ID of the product
+     * @return A list of brochures associated with the given product ID.
+     */
+
+    List<Brochure> findByProductId(String productId);
 
     /**
      * Finds brochures by a list of product IDs.
@@ -30,5 +33,5 @@ public interface BrochureRepository extends MongoRepository<Brochure, String> {
      * @return A list of {@link Brochure} entities associated with the given product IDs.
      */
     @Query("{ 'productId': { $in: ?0 } }")
-    List<Brochure> findByProductIds(List<String> productId);
+    List<Brochure> findByProductIds(List<String> productIds);
 }
