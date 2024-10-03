@@ -5,7 +5,7 @@ trigger:
       - feature/ci
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'mcr.microsoft.com/openjdk/jdk:17-mariner'
 
 variables:
   # Define common variables
@@ -16,74 +16,28 @@ variables:
   middlewareDockerImage: 'aistudy1.azurecr.io/aistudy/middleware-service:$(Build.BuildId)'
   frontendDockerImage: 'aistudy1.azurecr.io/aistudy/frontend:$(Build.BuildId)'
   containerRegistry: 'Labs Container'
-  # Default JAVA_HOME (will be updated after JDK installation)
-  JAVA_HOME: ''
 
 stages:
-  - stage: InstallJDK
-    displayName: 'Install Microsoft OpenJDK'
-    jobs:
-      - job: InstallJDKJob
-        displayName: 'Install Microsoft OpenJDK 17.0.12'
-        steps:
-          - script: |
-              echo "Installing Microsoft OpenJDK 17.0.12..."
-              wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
-              sudo mkdir -p /usr/lib/jvm/microsoft-jdk-17
-              sudo tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
-              echo "Installed Microsoft OpenJDK 17.0.12 at /usr/lib/jvm/microsoft-jdk-17"
-            displayName: 'Download and Install Microsoft OpenJDK'
-
-          - script: |
-              echo "Configuring JDK environment variables..."
-              echo "JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17" | sudo tee -a /etc/environment
-              echo "PATH=/usr/lib/jvm/microsoft-jdk-17/bin:$PATH" | sudo tee -a /etc/environment
-              source /etc/environment
-              echo "JAVA_HOME set to: $JAVA_HOME"
-              java -version
-              javac -version
-            displayName: 'Set JAVA_HOME and PATH'
-
-          # Publish the JAVA_HOME environment variable for subsequent jobs
-          - task: Bash@3
-            inputs:
-              targetType: 'inline'
-              script: |
-                echo "##vso[task.setvariable variable=JAVA_HOME;isOutput=true]/usr/lib/jvm/microsoft-jdk-17"
-                echo "Set JAVA_HOME output variable."
-            name: SetJavaHome
-            displayName: 'Set Output Variable for JAVA_HOME'
-
   - stage: Build
     displayName: 'Build Stage'
-    dependsOn: InstallJDK
-    variables:
-      # Reference the JAVA_HOME variable set in the InstallJDK stage
-      JAVA_HOME: $[ dependencies.InstallJDK.outputs['InstallJDKJob.SetJavaHome.JAVA_HOME'] ]
     jobs:
       - job: BuildBackend
         displayName: 'Build Backend'
         steps:
+          # Build the backend
           - script: |
-              echo "Building Backend with JAVA_HOME set to: $JAVA_HOME"
               cd backend
               ./mvnw clean package
             displayName: 'Build Java Backend'
-            env:
-              JAVA_HOME: $(JAVA_HOME)
-              PATH: $(JAVA_HOME)/bin:$(PATH)
 
       - job: BuildMiddleware
         displayName: 'Build Middleware'
         steps:
+          # Build the backend
           - script: |
-              echo "Building Middleware with JAVA_HOME set to: $JAVA_HOME"
               cd middleware
               ./mvnw clean package
             displayName: 'Build Java Middleware'
-            env:
-              JAVA_HOME: $(JAVA_HOME)
-              PATH: $(JAVA_HOME)/bin:$(PATH)
 
       - job: BuildFrontend
         displayName: 'Build Frontend'
@@ -111,13 +65,12 @@ stages:
                     repository: $(backendDockerImage)
                     Dockerfile: 'backend/Dockerfile'
                     containerRegistry: $(containerRegistry)
-                    tags: |
-                      $(Build.BuildId)
+                    tags: $(Build.BuildId)
                 - task: AzureWebApp@1
                   inputs:
                     azureSubscription: 'Labs'
                     appType: 'webAppLinux'
-                    appName: $(backendAppName)
+                    appName: 'aistudy-backend'
                     package: '$(System.DefaultWorkingDirectory)/backend/target/*.war'
 
       - deployment: DeployMiddleware
@@ -139,7 +92,7 @@ stages:
                   inputs:
                     azureSubscription: 'Labs'
                     appType: 'webAppLinux'
-                    appName: $(middlewareAppName)
+                    appName: 'aistudy-middleware'
                     package: '$(System.DefaultWorkingDirectory)/middleware/target/*.war'
 
       - deployment: DeployFrontend
@@ -154,13 +107,13 @@ stages:
                     command: 'buildAndPush'
                     repository: $(frontendDockerImage)
                     Dockerfile: 'frontend/Dockerfile'
-                    containerRegistry: '$(containerRegistry)'
+                    containerRegistry: $(containerRegistry)
                     tags: |
                       $(Build.BuildId)
                 - task: AzureWebApp@1
                   inputs:
                     azureSubscription: 'Labs'
                     appType: 'webAppLinux'
-                    appName: $(frontendAppName)
+                    appName: 'aistudy-frontend'
                     package: '$(System.DefaultWorkingDirectory)/frontend/build'
                     startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
