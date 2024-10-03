@@ -1,0 +1,118 @@
+trigger:
+  branches:
+    include:
+      - main
+      - feature/ci
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Define common variables
+  backendAppName: 'aistudy-backend'
+  middlewareAppName: 'aistudy-middleware'
+  frontendAppName: 'aistudy-frontend'
+  backendDockerImage: 'aistudy1.azurecr.io/aistudy/backend-service:$(Build.BuildId)'
+  middlewareDockerImage: 'aistudy1.azurecr.io/aistudy/middleware-service:$(Build.BuildId)'
+  frontendDockerImage: 'aistudy1.azurecr.io/aistudy/frontend:$(Build.BuildId)'
+  containerRegistry: 'aistudy1.azurecr.io'
+
+stages:
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      - job: BuildBackend
+        displayName: 'Build Backend'
+        steps:
+          - script: |
+              cd backend
+              ./mvnw clean package
+            displayName: 'Build Java Backend'
+
+      - job: BuildMiddleware
+        displayName: 'Build Middleware'
+        steps:
+          - script: |
+              cd middleware
+              ./mvnw clean package
+            displayName: 'Build Java Middleware'
+
+      - job: BuildFrontend
+        displayName: 'Build Frontend'
+        steps:
+          - script: |
+              cd frontend
+              npm install
+              npm run build
+            displayName: 'Build React Frontend'
+
+  - stage: Deploy
+    displayName: 'Deploy Stage'
+    dependsOn: Build
+    jobs:
+      - deployment: DeployBackend
+        displayName: 'Deploy Backend'
+        environment: 'backend-env'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: Docker@2
+                  inputs:
+                    command: 'buildAndPush'
+                    repository: $(backendDockerImage)
+                    Dockerfile: 'backend/Dockerfile'
+                    containerRegistry: $(containerRegistry)
+                    tags: |
+                      $(Build.BuildId)
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'Labs'
+                    appType: 'webAppLinux'
+                    appName: 'aistudy-backend'
+                    package: '$(System.DefaultWorkingDirectory)/backend/target/*.war'
+
+      - deployment: DeployMiddleware
+        displayName: 'Deploy Middleware'
+        environment: 'middleware-env'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: Docker@2
+                  inputs:
+                    command: 'buildAndPush'
+                    repository: $(middlewareDockerImage)
+                    Dockerfile: 'middleware/Dockerfile'
+                    containerRegistry: $(containerRegistry)
+                    tags: |
+                      $(Build.BuildId)
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'Labs'
+                    appType: 'webAppLinux'
+                    appName: 'aistudy-middleware'
+                    package: '$(System.DefaultWorkingDirectory)/middleware/target/*.war'
+
+      - deployment: DeployFrontend
+        displayName: 'Deploy Frontend'
+        environment: 'frontend-env'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: Docker@2
+                  inputs:
+                    command: 'buildAndPush'
+                    repository: $(frontendDockerImage)
+                    Dockerfile: 'frontend/Dockerfile'
+                    containerRegistry: $(containerRegistry)
+                    tags: |
+                      $(Build.BuildId)
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'Labs'
+                    appType: 'webAppLinux'
+                    appName: 'aistudy-frontend'
+                    package: '$(System.DefaultWorkingDirectory)/frontend/build'
+                    startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
