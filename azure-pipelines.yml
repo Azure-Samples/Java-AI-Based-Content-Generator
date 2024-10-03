@@ -24,6 +24,20 @@ stages:
       - job: BuildBackend
         displayName: 'Build Backend'
         steps:
+          # Download and install Microsoft OpenJDK 17.0.12
+          - script: |
+              echo "Installing Microsoft OpenJDK 17.0.12..."
+              wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
+              mkdir -p /usr/lib/jvm/microsoft-jdk-17
+              tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
+              # Set JAVA_HOME and update the PATH
+              export JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17
+              export PATH=$JAVA_HOME/bin:$PATH
+              # Verify the installation
+              java -version
+              javac -version
+            displayName: 'Install and Verify Microsoft OpenJDK 17.0.12'
+          # Build the backend
           - script: |
               cd backend
               ./mvnw clean package
@@ -32,6 +46,20 @@ stages:
       - job: BuildMiddleware
         displayName: 'Build Middleware'
         steps:
+          # Download and install Microsoft OpenJDK 17.0.12
+          - script: |
+              echo "Installing Microsoft OpenJDK 17.0.12..."
+              wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
+              mkdir -p /usr/lib/jvm/microsoft-jdk-17
+              tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
+              # Set JAVA_HOME and update the PATH
+              export JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17
+              export PATH=$JAVA_HOME/bin:$PATH
+              # Verify the installation
+              java -version
+              javac -version
+            displayName: 'Install and Verify Microsoft OpenJDK 17.0.12'
+          # Build the backend
           - script: |
               cd middleware
               ./mvnw clean package
