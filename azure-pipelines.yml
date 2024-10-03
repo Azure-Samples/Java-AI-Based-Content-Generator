@@ -15,7 +15,7 @@ variables:
   backendDockerImage: 'aistudy1.azurecr.io/aistudy/backend-service:$(Build.BuildId)'
   middlewareDockerImage: 'aistudy1.azurecr.io/aistudy/middleware-service:$(Build.BuildId)'
   frontendDockerImage: 'aistudy1.azurecr.io/aistudy/frontend:$(Build.BuildId)'
-  containerRegistry: 'aistudy1.azurecr.io'
+  containerRegistry: 'Labs Container'
 
 stages:
   - stage: Build
@@ -63,8 +63,7 @@ stages:
                     repository: $(backendDockerImage)
                     Dockerfile: 'backend/Dockerfile'
                     containerRegistry: $(containerRegistry)
-                    tags: |
-                      $(Build.BuildId)
+                    tags: $(Build.BuildId)
                 - task: AzureWebApp@1
                   inputs:
                     azureSubscription: 'Labs'
