@@ -36,8 +36,12 @@ jobs:
       mavenPomFile: 'backend/pom.xml'
       publishJUnitResults: true
       testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      javaHomeOption: 'Path'
+      allowBrokenSymlinks: false
+      javaHomeOption: 'JDKVersion'
       mavenVersionOption: 'Default'
+      mavenAuthenticateFeed: false
+      effectivePomSkip: false
+      sonarQubeRunAnalysis: false
 
   - script: |
       ls -al $(System.DefaultWorkingDirectory)/backend/target
