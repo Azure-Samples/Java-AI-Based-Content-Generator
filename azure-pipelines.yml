@@ -76,7 +76,7 @@ stages:
                     azureSubscription: $(azureSubscription)
                     appType: 'webAppLinux'
                     appName: $(backendAppName)
-                    package: '$(System.DefaultWorkingDirectory)/backend/target/*.war'
+                    package: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
                   displayName: 'Deploy Backend to Azure App Service'
 
       - deployment: DeployMiddleware
@@ -91,7 +91,7 @@ stages:
                     azureSubscription: $(azureSubscription)
                     appType: 'webAppLinux'
                     appName: $(middlewareAppName)
-                    package: '$(System.DefaultWorkingDirectory)/middleware/target/*.war'
+                    package: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
                   displayName: 'Deploy Middleware to Azure App Service'
 
       - deployment: DeployFrontend
