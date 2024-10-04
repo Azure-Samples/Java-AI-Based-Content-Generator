@@ -23,6 +23,9 @@ variables:
   # Azure subscription name
   azureSubscription: 'Labs'
 
+  # Container name: 
+  containerName: 'Labs Container'
+
 stages:
   - stage: Build
     displayName: 'Build Stage'
@@ -76,7 +79,7 @@ stages:
                     command: 'buildAndPush'
                     repository: $(backendDockerImage)
                     Dockerfile: 'backend/Dockerfile'
-                    containerRegistry: $(containerRegistry)
+                    containerRegistry: $(containerName)
                     tags: $(imageTag)
                   displayName: 'Push Backend Docker Image'
 
@@ -100,7 +103,7 @@ stages:
                     command: 'buildAndPush'
                     repository: $(middlewareDockerImage)
                     Dockerfile: 'middleware/Dockerfile'
-                    containerRegistry: $(containerRegistry)
+                    containerRegistry: $(containerName)
                     tags: $(imageTag)
                   displayName: 'Push Middleware Docker Image'
 
@@ -124,7 +127,7 @@ stages:
                     command: 'buildAndPush'
                     repository: $(frontendDockerImage)
                     Dockerfile: 'frontend/Dockerfile'
-                    containerRegistry: $(containerRegistry)
+                    containerRegistry: $(containerName)
                     tags: $(imageTag)
                   displayName: 'Push Frontend Docker Image'
 
