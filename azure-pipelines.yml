@@ -47,7 +47,7 @@ jobs:
     
 
   - script: |
-      echo "##vso[task.setvariable variable=WAR_FILE_PATH]$(System.DefaultWorkingDirectory)/backend/target/your-app-name.war"
+      echo "##vso[task.setvariable variable=WAR_FILE_PATH]$(System.DefaultWorkingDirectory)/backend/target/backend.war"
       echo "WAR file path: $(WAR_FILE_PATH)"
     displayName: 'Set WAR File Path Variable'
 
