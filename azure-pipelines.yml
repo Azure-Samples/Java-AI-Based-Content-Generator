@@ -14,7 +14,7 @@ variables:
   mavenVersion: '3.8.1'
   webAppName: 'aistudy-backend'  
   resourceGroupName: 'aistudy'  
-  artifactName: 'springboot-war' 
+  artifactName: 'backend-springboot-war' 
 
 jobs:
 - job: BuildAndDeploy
@@ -34,13 +34,17 @@ jobs:
   
   - task: Maven@4
     inputs:
-      mavenPomFile: 'backend/pom.xml' 
-      goals: 'clean package'
-      options: '-DskipTests'  
-      javaHomeOption: 'Path'
+      azureSubscription: 'Labs'
+      mavenPomFile: 'backend/pom.xml'
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      allowBrokenSymlinks: false
+      javaHomeOption: 'JDKVersion'
       mavenVersionOption: 'Default'
       mavenAuthenticateFeed: false
-      publishJUnitResults: false
+      effectivePomSkip: false
+      sonarQubeRunAnalysis: false
+    
 
   - script: |
       echo "##vso[task.setvariable variable=WAR_FILE_PATH]$(System.DefaultWorkingDirectory)/backend/target/your-app-name.war"
