@@ -7,105 +7,14 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  # Define common variables
-  backendAppName: 'aistudy-backend'
-  middlewareAppName: 'aistudy-middleware'
-  frontendAppName: 'aistudy-frontend'
+steps:
 
-  # Azure subscription name
-  azureSubscription: 'Labs'
-
-stages:
-  - stage: Build
-    displayName: 'Build Stage'
-    jobs:
-      - job: BuildAll
-        displayName: 'Build Backend, Middleware, and Frontend'
-        steps:
-          - script: |
-              echo "Installing Microsoft OpenJDK 17..."
-              wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
-              mkdir -p /usr/lib/jvm/microsoft-jdk-17
-              tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
-              export JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17
-              export PATH=$JAVA_HOME/bin:$PATH
-              java -version
-              javac -version
-              echo "Java installation completed."
-              echo "Building Backend..."
-              cd backend
-              ./mvnw clean package
-            displayName: 'Build Backend'
-
-          - script: |
-              echo "Installing Microsoft OpenJDK 17..."
-              wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
-              mkdir -p /usr/lib/jvm/microsoft-jdk-17
-              tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
-              export JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17
-              export PATH=$JAVA_HOME/bin:$PATH
-              java -version
-              javac -version
-              echo "Java installation completed."
-              echo "Building Middleware..."
-              cd middleware
-              ./mvnw clean package
-            displayName: 'Build Middleware'
-
-          - script: |
-              echo "Building Frontend..."
-              cd frontend
-              npm install
-              npm run build
-            displayName: 'Build Frontend'
-
-  - stage: Deploy
-    displayName: 'Deploy Stage'
-    dependsOn: Build
-    jobs:
-      - deployment: DeployBackend
-        displayName: 'Deploy Backend'
-        environment: 'backend-env'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: AzureWebApp@1
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    appType: 'webAppLinux'
-                    appName: $(backendAppName)
-                    package: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
-                  displayName: 'Deploy Backend to Azure App Service'
-
-      - deployment: DeployMiddleware
-        displayName: 'Deploy Middleware'
-        environment: 'middleware-env'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: AzureWebApp@1
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    appType: 'webAppLinux'
-                    appName: $(middlewareAppName)
-                    package: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
-                  displayName: 'Deploy Middleware to Azure App Service'
-
-      - deployment: DeployFrontend
-        displayName: 'Deploy Frontend'
-        environment: 'frontend-env'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: AzureWebApp@1
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    appType: 'webAppLinux'
-                    appName: $(frontendAppName)
-                    package: '$(System.DefaultWorkingDirectory)/frontend/build'
-                    startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
-                  displayName: 'Deploy Frontend to Azure App Service'
+- task: Maven@4
+  inputs:
+    azureSubscription: 'Labs'
+    mavenPomFile: 'backend/pom.xml'
+    mavenVersionOption: 'Default'
+    jdkVersionOption: 1.17
+    jdkArchitectureOption: x64
+    publishJUnitResults: false
+    goals: package
