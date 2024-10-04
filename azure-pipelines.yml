@@ -12,61 +12,53 @@ variables:
   backendAppName: 'aistudy-backend'
   middlewareAppName: 'aistudy-middleware'
   frontendAppName: 'aistudy-frontend'
-  backendDockerImage: 'aistudy1.azurecr.io/aistudy/backend-service:$(Build.BuildId)'
-  middlewareDockerImage: 'aistudy1.azurecr.io/aistudy/middleware-service:$(Build.BuildId)'
-  frontendDockerImage: 'aistudy1.azurecr.io/aistudy/frontend:$(Build.BuildId)'
-  containerRegistry: 'Labs Container'
+  containerRegistry: 'aistudy1.azurecr.io'
+  imageTag: '$(Build.BuildId)'
+
+  # Docker image names
+  backendDockerImage: '$(containerRegistry)/aistudy/backend-service:$(imageTag)'
+  middlewareDockerImage: '$(containerRegistry)/aistudy/middleware-service:$(imageTag)'
+  frontendDockerImage: '$(containerRegistry)/aistudy/frontend:$(imageTag)'
+
+  # Azure subscription name
+  azureSubscription: 'Labs'
 
 stages:
   - stage: Build
     displayName: 'Build Stage'
     jobs:
-      - job: BuildBackend
-        displayName: 'Build Backend'
+      - job: BuildAll
+        displayName: 'Build Backend, Middleware, and Frontend'
         steps:
-          # Build the backend
           - script: |
-              echo "Installing Microsoft OpenJDK 17.0.12..."
+              echo "Installing Microsoft OpenJDK 17..."
               wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
               mkdir -p /usr/lib/jvm/microsoft-jdk-17
               tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
-              # Set JAVA_HOME and update the PATH
               export JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17
               export PATH=$JAVA_HOME/bin:$PATH
-              # Verify the installation
               java -version
               javac -version
+              echo "Java installation completed."
+
+          - script: |
+              echo "Building Backend..."
               cd backend
               ./mvnw clean package
-            displayName: 'Build Java Backend'
+            displayName: 'Build Backend'
 
-      - job: BuildMiddleware
-        displayName: 'Build Middleware'
-        steps:
-          # Build the backend
           - script: |
-              echo "Installing Microsoft OpenJDK 17.0.12..."
-              wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O microsoft-jdk-17.tar.gz
-              mkdir -p /usr/lib/jvm/microsoft-jdk-17
-              tar -xzf microsoft-jdk-17.tar.gz -C /usr/lib/jvm/microsoft-jdk-17 --strip-components=1
-              # Set JAVA_HOME and update the PATH
-              export JAVA_HOME=/usr/lib/jvm/microsoft-jdk-17
-              export PATH=$JAVA_HOME/bin:$PATH
-              # Verify the installation
-              java -version
-              javac -version
+              echo "Building Middleware..."
               cd middleware
               ./mvnw clean package
-            displayName: 'Build Java Middleware'
+            displayName: 'Build Middleware'
 
-      - job: BuildFrontend
-        displayName: 'Build Frontend'
-        steps:
           - script: |
+              echo "Building Frontend..."
               cd frontend
               npm install
               npm run build
-            displayName: 'Build React Frontend'
+            displayName: 'Build Frontend'
 
   - stage: Deploy
     displayName: 'Deploy Stage'
@@ -85,13 +77,16 @@ stages:
                     repository: $(backendDockerImage)
                     Dockerfile: 'backend/Dockerfile'
                     containerRegistry: $(containerRegistry)
-                    tags: $(Build.BuildId)
+                    tags: $(imageTag)
+                  displayName: 'Push Backend Docker Image'
+
                 - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: 'Labs'
+                    azureSubscription: $(azureSubscription)
                     appType: 'webAppLinux'
-                    appName: 'aistudy-backend'
+                    appName: $(backendAppName)
                     package: '$(System.DefaultWorkingDirectory)/backend/target/*.war'
+                  displayName: 'Deploy Backend to Azure App Service'
 
       - deployment: DeployMiddleware
         displayName: 'Deploy Middleware'
@@ -106,14 +101,16 @@ stages:
                     repository: $(middlewareDockerImage)
                     Dockerfile: 'middleware/Dockerfile'
                     containerRegistry: $(containerRegistry)
-                    tags: |
-                      $(Build.BuildId)
+                    tags: $(imageTag)
+                  displayName: 'Push Middleware Docker Image'
+
                 - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: 'Labs'
+                    azureSubscription: $(azureSubscription)
                     appType: 'webAppLinux'
-                    appName: 'aistudy-middleware'
+                    appName: $(middlewareAppName)
                     package: '$(System.DefaultWorkingDirectory)/middleware/target/*.war'
+                  displayName: 'Deploy Middleware to Azure App Service'
 
       - deployment: DeployFrontend
         displayName: 'Deploy Frontend'
@@ -128,12 +125,14 @@ stages:
                     repository: $(frontendDockerImage)
                     Dockerfile: 'frontend/Dockerfile'
                     containerRegistry: $(containerRegistry)
-                    tags: |
-                      $(Build.BuildId)
+                    tags: $(imageTag)
+                  displayName: 'Push Frontend Docker Image'
+
                 - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: 'Labs'
+                    azureSubscription: $(azureSubscription)
                     appType: 'webAppLinux'
-                    appName: 'aistudy-frontend'
+                    appName: $(frontendAppName)
                     package: '$(System.DefaultWorkingDirectory)/frontend/build'
                     startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
+                  displayName: 'Deploy Frontend to Azure App Service'
