@@ -1,3 +1,4 @@
+
 trigger:
   branches:
     include:
@@ -5,16 +6,56 @@ trigger:
       - feature/ci
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-latest'  
 
-steps:
+variables:
+  # Set your variables for Java, Maven, and Web App
+  javaHome: '$(Pipeline.Workspace)/jdk-17.0.12'  
+  mavenVersion: '3.8.1'
+  webAppName: 'aistudy-backend'  
+  resourceGroupName: 'aistudy'  
+  artifactName: 'springboot-war' 
 
-- task: Maven@4
-  inputs:
-    azureSubscription: 'Labs'
-    mavenPomFile: 'backend/pom.xml'
-    mavenVersionOption: 'Default'
-    jdkVersionOption: 1.17
-    jdkArchitectureOption: x64
-    publishJUnitResults: false
-    goals: package
+jobs:
+- job: BuildAndDeploy
+  displayName: 'Build and Deploy WAR to Azure Web App Service'
+  steps:
+  - script: |
+      wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O jdk.tar.gz
+      mkdir -p $(Pipeline.Workspace)/jdk-17.0.12
+      tar -xzf jdk.tar.gz -C $(Pipeline.Workspace)/jdk-17.0.12 --strip-components=1
+    displayName: 'Download and Install Microsoft JDK 17.0.12'
+
+  - script: |
+      echo "##vso[task.setvariable variable=JAVA_HOME]$(javaHome)"
+      echo "##vso[task.prependpath]$(javaHome)/bin"
+      java -version
+    displayName: 'Set JAVA_HOME and Update Path'
+  
+  - task: Maven@4
+    inputs:
+      mavenPomFile: 'backend/pom.xml' 
+      goals: 'clean package'
+      options: '-DskipTests'  
+      javaHomeOption: 'Path'
+      mavenVersionOption: 'Default'
+      mavenAuthenticateFeed: false
+      publishJUnitResults: false
+
+  - script: |
+      echo "##vso[task.setvariable variable=WAR_FILE_PATH]$(System.DefaultWorkingDirectory)/backend/target/your-app-name.war"
+      echo "WAR file path: $(WAR_FILE_PATH)"
+    displayName: 'Set WAR File Path Variable'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(WAR_FILE_PATH)'
+      ArtifactName: '$(artifactName)'
+
+  - task: AzureWebApp@1
+    inputs:
+      appType: webAppLinux
+      azureSubscription: 'Labs'
+      appName: '$(webAppName)'
+      package: '$(System.DefaultWorkingDirectory)/$(artifactName)/backend.war'
+      resourceGroupName: '$(resourceGroupName)'
