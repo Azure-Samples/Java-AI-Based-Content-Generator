@@ -117,7 +117,7 @@ stages:
         inputs:
           azureSubscription: '$(azureSubscription)'
           appName: '$(frontendAppName)'
-          package: '$(System.DefaultWorkingDirectory)/$(frontendBuildDirectory)'
+          package: '$(Pipeline.Workspace)/$(frontendBuildDirectory)'
           startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
           appType: 'webAppLinux'  # Specify appType for Web App on Linux
 
