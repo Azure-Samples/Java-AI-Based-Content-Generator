@@ -117,45 +117,45 @@ stages:
         inputs:
           azureSubscription: '$(azureSubscription)'
           appName: '$(frontendAppName)'
-          package: '$(Pipeline.Workspace)/frontend/build'
+          package: '$(System.DefaultWorkingDirectory)/$(frontendBuildDirectory)'
           startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
           appType: 'webAppLinux'  # Specify appType for Web App on Linux
 
-    - job: Deploy_Backend_AKS
-      displayName: 'Deploy Backend to Azure Kubernetes Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - download: current
-        artifact: backend
-      - script: |
-          az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
-          docker build -t $(acrName)/backend:latest backend/
-          docker push $(acrName)/backend:latest
-          kubectl apply -f backend/backend-deployment.yml
+    # - job: Deploy_Backend_AKS
+    #   displayName: 'Deploy Backend to Azure Kubernetes Service'
+    #   pool:
+    #     vmImage: 'ubuntu-latest'
+    #   steps:
+    #   - download: current
+    #     artifact: backend
+    #   - script: |
+    #       az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
+    #       docker build -t $(acrName)/backend:latest backend/
+    #       docker push $(acrName)/backend:latest
+    #       kubectl apply -f backend/backend-deployment.yml
 
-    - job: Deploy_Middleware_AKS
-      displayName: 'Deploy Middleware to Azure Kubernetes Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - download: current
-        artifact: middleware
-      - script: |
-          az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
-          docker build -t $(acrName)/middleware:latest middleware/
-          docker push $(acrName)/middleware:latest
-          kubectl apply -f middleware/middleware-deployment.yml
+    # - job: Deploy_Middleware_AKS
+    #   displayName: 'Deploy Middleware to Azure Kubernetes Service'
+    #   pool:
+    #     vmImage: 'ubuntu-latest'
+    #   steps:
+    #   - download: current
+    #     artifact: middleware
+    #   - script: |
+    #       az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
+    #       docker build -t $(acrName)/middleware:latest middleware/
+    #       docker push $(acrName)/middleware:latest
+    #       kubectl apply -f middleware/middleware-deployment.yml
 
-    - job: Deploy_Frontend_AKS
-      displayName: 'Deploy Frontend to Azure Kubernetes Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - download: current
-        artifact: frontend
-      - script: |
-          az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
-          docker build -t $(acrName)/frontend:latest frontend/
-          docker push $(acrName)/frontend:latest
-          kubectl apply -f frontend/frontend-deployment.yml
+    # - job: Deploy_Frontend_AKS
+    #   displayName: 'Deploy Frontend to Azure Kubernetes Service'
+    #   pool:
+    #     vmImage: 'ubuntu-latest'
+    #   steps:
+    #   - download: current
+    #     artifact: frontend
+    #   - script: |
+    #       az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
+    #       docker build -t $(acrName)/frontend:latest frontend/
+    #       docker push $(acrName)/frontend:latest
+    #       kubectl apply -f frontend/frontend-deployment.yml
