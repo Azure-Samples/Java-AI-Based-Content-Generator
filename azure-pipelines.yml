@@ -103,7 +103,13 @@ stages:
           appName: '$(middlewareAppName)'
           resourceGroupName: '$(resourceGroup)'
           appSettings: |
-            - AZURE_KEYVAULT_URI=$(AZURE_KEYVAULT_URI)
+            [
+              {
+                "name": "AZURE_KEYVAULT_URI",
+                "value": "$(AZURE_KEYVAULT_URI)",
+                "slotSetting": false
+              }
+            ]
 
     - job: Deploy_Middleware_AppService
       displayName: 'Deploy Middleware to Azure App Service'
@@ -125,7 +131,13 @@ stages:
           appName: '$(middlewareAppName)'
           resourceGroupName: '$(resourceGroup)'
           appSettings: |
-            - AZURE_KEYVAULT_URI=$(AZURE_KEYVAULT_URI)
+            [
+              {
+                "name": "AZURE_KEYVAULT_URI",
+                "value": "$(AZURE_KEYVAULT_URI)",
+                "slotSetting": false
+              }
+            ]
 
     - job: Deploy_Frontend_AppService
       displayName: 'Deploy Frontend to Azure App Service'
@@ -148,10 +160,28 @@ stages:
           appName: '$(frontendAppName)'
           resourceGroupName: '$(resourceGroup)'
           appSettings: |
-            - REACT_APP_SERVICE_BASE_URL=$(REACT_APP_SERVICE_BASE_URL)
-            - REACT_APP_CLIENT_ID=$(REACT_APP_CLIENT_ID)
-            - REACT_APP_CONTENT_GENERATOR_ENDPOINT=$(REACT_APP_CONTENT_GENERATOR_ENDPOINT)
-            - REACT_APP_SERVICE_ACCESS_KEY=$(REACT_APP_SERVICE_ACCESS_KEY)
+            [
+              {
+                "name": "REACT_APP_SERVICE_BASE_URL",
+                "value": "$(REACT_APP_SERVICE_BASE_URL)",
+                "slotSetting": false
+              },
+              {
+                "name": "REACT_APP_CLIENT_ID",
+                "value": "$(REACT_APP_CLIENT_ID)",
+                "slotSetting": false
+              },
+              {
+                "name": "REACT_APP_CONTENT_GENERATOR_ENDPOINT",
+                "value": "$(REACT_APP_CONTENT_GENERATOR_ENDPOINT)",
+                "slotSetting": false
+              },
+              {
+                "name": "REACT_APP_SERVICE_ACCESS_KEY",
+                "value": "$(REACT_APP_SERVICE_ACCESS_KEY)",
+                "slotSetting": false
+              }
+            ]
 
     # - job: Deploy_Backend_AKS
     #   displayName: 'Deploy Backend to Azure Kubernetes Service'
