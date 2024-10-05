@@ -18,6 +18,11 @@ variables:
   middlewareAppName: 'aistudy-middleware'
   frontendAppName: 'aistudy-frontend'
   appType: 'webAppLinux'  # Setting appType property for Azure Web App
+  AZURE_KEYVAULT_URI: 'https://aistudy1.vault.azure.net/'  # Key Vault URI
+  REACT_APP_SERVICE_BASE_URL: 'https://aistudy-backend.azurewebsites.net'  # Backend URL
+  REACT_APP_CLIENT_ID: 'c23e9e28-22a3-4f63-880f-eaa88fce0503'  # Client ID
+  REACT_APP_CONTENT_GENERATOR_ENDPOINT: '/api/v1/generate/content'  # Content generator endpoint
+  REACT_APP_SERVICE_ACCESS_KEY: 'b2dd28f8a77141d5a35baf3e2f3fcd45'  # Access key
 
 stages:
 - stage: Build
@@ -91,6 +96,14 @@ stages:
           appName: '$(backendAppName)'
           package: '$(Pipeline.Workspace)/backend/$(backendArtifact)'
           appType: 'webAppLinux'  # Specify appType for Web App on Linux
+      - task: AzureAppServiceSettings@1
+        displayName: 'Set Middleware App Service Application Settings'
+        inputs:
+          azureSubscription: '$(azureSubscription)'
+          appName: '$(middlewareAppName)'
+          resourceGroupName: '$(resourceGroup)'
+          appSettings: |
+            - AZURE_KEYVAULT_URI=$(AZURE_KEYVAULT_URI)
 
     - job: Deploy_Middleware_AppService
       displayName: 'Deploy Middleware to Azure App Service'
@@ -105,6 +118,14 @@ stages:
           appName: '$(middlewareAppName)'
           package: '$(Pipeline.Workspace)/middleware/$(middlewareArtifact)'
           appType: 'webAppLinux'  # Specify appType for Web App on Linux
+      - task: AzureAppServiceSettings@1
+        displayName: 'Set Middleware App Service Application Settings'
+        inputs:
+          azureSubscription: '$(azureSubscription)'
+          appName: '$(middlewareAppName)'
+          resourceGroupName: '$(resourceGroup)'
+          appSettings: |
+            - AZURE_KEYVAULT_URI=$(AZURE_KEYVAULT_URI)
 
     - job: Deploy_Frontend_AppService
       displayName: 'Deploy Frontend to Azure App Service'
@@ -117,9 +138,20 @@ stages:
         inputs:
           azureSubscription: '$(azureSubscription)'
           appName: '$(frontendAppName)'
-          package: '$(Pipeline.Workspace)/frontend/'
+          package: '$(Pipeline.Workspace)/frontend'
           startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
           appType: 'webAppLinux'  # Specify appType for Web App on Linux
+      - task: AzureAppServiceSettings@1
+        displayName: 'Set Frontend App Service Application Settings'
+        inputs:
+          azureSubscription: '$(azureSubscription)'
+          appName: '$(frontendAppName)'
+          resourceGroupName: '$(resourceGroup)'
+          appSettings: |
+            - REACT_APP_SERVICE_BASE_URL=$(REACT_APP_SERVICE_BASE_URL)
+            - REACT_APP_CLIENT_ID=$(REACT_APP_CLIENT_ID)
+            - REACT_APP_CONTENT_GENERATOR_ENDPOINT=$(REACT_APP_CONTENT_GENERATOR_ENDPOINT)
+            - REACT_APP_SERVICE_ACCESS_KEY=$(REACT_APP_SERVICE_ACCESS_KEY)
 
     # - job: Deploy_Backend_AKS
     #   displayName: 'Deploy Backend to Azure Kubernetes Service'
