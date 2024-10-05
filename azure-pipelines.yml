@@ -8,56 +8,154 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  javaHome: '$(Pipeline.Workspace)/jdk-17.0.12'
-  mavenVersion: '3.8.1'
-  webAppName: 'aistudy-backend'
-  resourceGroupName: 'aistudy'
-  artifactName: 'backend-springboot-war'
+  backendArtifact: 'backend.war'
+  middlewareArtifact: 'middleware.war'
+  frontendBuildDirectory: 'frontend/build'
+  azureSubscription: 'Labs'
+  resourceGroup: 'aistudy'
+  acrName: 'aistudy1.azurecr.io'
+  backendAppName: 'aistudy-backend'
+  middlewareAppName: 'aistudy-middleware'
+  frontendAppName: 'aistudy-frontend'
+  appType: 'webAppLinux'  # Setting appType property for Azure Web App
 
-jobs:
-- job: BuildAndDeploy
-  displayName: 'Build and Deploy WAR to Azure Web App Service'
-  steps:
-  - script: |
-      wget https://aka.ms/download-jdk/microsoft-jdk-17.0.12-linux-x64.tar.gz -O jdk.tar.gz
-      mkdir -p $(Pipeline.Workspace)/jdk-17.0.12
-      tar -xzf jdk.tar.gz -C $(Pipeline.Workspace)/jdk-17.0.12 --strip-components=1
-    displayName: 'Download and Install Microsoft JDK 17.0.12'
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+    - job: Build_Backend
+      displayName: 'Build Backend Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - checkout: self
+      - task: Maven@4
+        inputs:
+          mavenPomFile: 'backend/pom.xml'
+          mavenOptions: '-Xmx3072m'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.17'   # JDK Version set to 17
+          jdkArchitectureOption: 'x64'
+          publishJUnitResults: true
+          testResultsFiles: '**/TEST-*.xml'
+          goals: 'clean package'
+      - publish: '$(System.DefaultWorkingDirectory)/backend/target/$(backendArtifact)'
+        artifact: backend
 
-  - script: |
-      echo "##vso[task.setvariable variable=JAVA_HOME]$(javaHome)"
-      echo "##vso[task.prependpath]$(javaHome)/bin"
-      java -version
-    displayName: 'Set JAVA_HOME and Update Path'
+    - job: Build_Middleware
+      displayName: 'Build Middleware Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - checkout: self
+      - task: Maven@4
+        inputs:
+          mavenPomFile: 'middleware/pom.xml'
+          mavenOptions: '-Xmx3072m'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.17'   # JDK Version set to 17
+          jdkArchitectureOption: 'x64'
+          publishJUnitResults: true
+          testResultsFiles: '**/TEST-*.xml'
+          goals: 'clean package'
+      - publish: '$(System.DefaultWorkingDirectory)/middleware/target/$(middlewareArtifact)'
+        artifact: middleware
 
-  - task: Maven@4
-    inputs:
-      azureSubscription: 'Labs'
-      mavenPomFile: 'backend/pom.xml'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      allowBrokenSymlinks: false
-      javaHomeOption: 'JDKVersion'
-      mavenVersionOption: 'Default'
-      mavenAuthenticateFeed: false
-      effectivePomSkip: false
-      sonarQubeRunAnalysis: false
+    - job: Build_Frontend
+      displayName: 'Build Frontend Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - checkout: self
+      - script: |
+          cd frontend
+          npm install
+          npm run build
+      - publish: '$(Pipeline.Workspace)/$(frontendBuildDirectory)'
+        artifact: frontend
 
-  - script: |
-      ls -al $(System.DefaultWorkingDirectory)/backend/target
-      echo "##vso[task.setvariable variable=WAR_FILE_PATH]$(System.DefaultWorkingDirectory)/backend/target/backend.war"
-      echo "WAR file path: $(WAR_FILE_PATH)"
-    displayName: 'Verify WAR File and Set Path Variable'
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Build
+  jobs:
+    - job: Deploy_Backend_AppService
+      displayName: 'Deploy Backend to Azure App Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - download: current
+        artifact: backend
+      - task: AzureWebApp@1
+        inputs:
+          azureSubscription: '$(azureSubscription)'
+          appName: '$(backendAppName)'
+          package: '$(Pipeline.Workspace)/backend/$(backendArtifact)'
+          appType: 'webAppLinux'  # Specify appType for Web App on Linux
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
-      ArtifactName: '$(artifactName)'
+    - job: Deploy_Middleware_AppService
+      displayName: 'Deploy Middleware to Azure App Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - download: current
+        artifact: middleware
+      - task: AzureWebApp@1
+        inputs:
+          azureSubscription: '$(azureSubscription)'
+          appName: '$(middlewareAppName)'
+          package: '$(Pipeline.Workspace)/middleware/$(middlewareArtifact)'
+          appType: 'webAppLinux'  # Specify appType for Web App on Linux
 
-  - task: AzureWebApp@1
-    inputs:
-      appType: webAppLinux
-      azureSubscription: 'Labs'
-      appName: '$(webAppName)'
-      package: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
-      resourceGroupName: '$(resourceGroupName)'
+    - job: Deploy_Frontend_AppService
+      displayName: 'Deploy Frontend to Azure App Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - download: current
+        artifact: frontend
+      - task: AzureWebApp@1
+        inputs:
+          azureSubscription: '$(azureSubscription)'
+          appName: '$(frontendAppName)'
+          package: '$(Pipeline.Workspace)/frontend/build'
+          startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
+          appType: 'webAppLinux'  # Specify appType for Web App on Linux
+
+    - job: Deploy_Backend_AKS
+      displayName: 'Deploy Backend to Azure Kubernetes Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - download: current
+        artifact: backend
+      - script: |
+          az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
+          docker build -t $(acrName)/backend:latest backend/
+          docker push $(acrName)/backend:latest
+          kubectl apply -f backend/backend-deployment.yml
+
+    - job: Deploy_Middleware_AKS
+      displayName: 'Deploy Middleware to Azure Kubernetes Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - download: current
+        artifact: middleware
+      - script: |
+          az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
+          docker build -t $(acrName)/middleware:latest middleware/
+          docker push $(acrName)/middleware:latest
+          kubectl apply -f middleware/middleware-deployment.yml
+
+    - job: Deploy_Frontend_AKS
+      displayName: 'Deploy Frontend to Azure Kubernetes Service'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - download: current
+        artifact: frontend
+      - script: |
+          az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
+          docker build -t $(acrName)/frontend:latest frontend/
+          docker push $(acrName)/frontend:latest
+          kubectl apply -f frontend/frontend-deployment.yml
