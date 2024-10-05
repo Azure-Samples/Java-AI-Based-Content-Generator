@@ -71,7 +71,7 @@ stages:
           cd frontend
           npm install
           npm run build
-      - publish: '$(Pipeline.Workspace)/$(frontendBuildDirectory)'
+      - publish: '$(System.DefaultWorkingDirectory)/$(frontendBuildDirectory)'
         artifact: frontend
 
 - stage: Deploy
