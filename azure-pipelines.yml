@@ -13,8 +13,10 @@ variables:
   backendAppName: '$(BackendAppServiceName)'  # This will be set from Key Vault
   middlewareAppName: '$(MiddlewareAppServiceName)'  # This will be set from Key Vault
   frontendAppName: '$(FrontendAppServiceName)'  # This will be set from Key Vault
-  acrName: '$(AcrName)'  # This will be set from Key Vault
   AZURE_KEYVAULT_URI: 'https://$(azureKeyVaultName).vault.azure.net/'  # Key Vault URI
+
+  ## Uncomment the following lines to enable AKS deployment
+  # acrName: '$(AcrName)'  # This will be set from Key Vault
 
 stages:
   - stage: FetchSecrets
