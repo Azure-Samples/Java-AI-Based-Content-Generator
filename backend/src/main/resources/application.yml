@@ -4,7 +4,6 @@ spring:
   cloud:
     azure:
       keyvault:
-        endpoint: ${AZURE_KEYVAULT_URI}
         secret:
           property-source-enabled: true # Enables loading Key Vault secrets into Spring properties
           property-sources:
@@ -12,17 +11,21 @@ spring:
               endpoint: ${AZURE_KEYVAULT_URI}
             - name: "StorageContainerName"
               endpoint: ${AZURE_KEYVAULT_URI}
-            - name: "AzureStorageConnectionString"
-              endpoint: ${AZURE_KEYVAULT_URI}
             - name: "AzureCosmosConnectionString"
               endpoint: ${AZURE_KEYVAULT_URI}
             - name: "MongoDBDatabaseName"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "MiddlewareServiceBaseUrl"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "MiddlewareServiceAccessKey"
+              endpoint: ${AZURE_KEYVAULT_URI}
+            - name: "MiddlewareServiceProductEmbeddingEndpoint"
               endpoint: ${AZURE_KEYVAULT_URI}
       storage:
         account-name: ${StorageAccountName}  # Name of the secret in Key Vault for storage account
         blob:
           container-name: ${StorageContainerName}  # Name of the secret in Key Vault for container name
-          connection-string: ${AzureStorageConnectionString}
+          account-name: ${StorageAccountName}
   data:
     mongodb:
       uri: ${AzureCosmosConnectionString}
@@ -32,7 +35,7 @@ data:
   customer:
     path: src/main/resources/static/customer/data.json
   product:
-    path: src/main/resources/static/product/data.json
+    path: src/main/resources/static/product/sku.json
   append:
     enabled: true
 

@@ -13,13 +13,13 @@ spec:
         app: backend
     spec:
       containers:
-        - name: backend-container
-          image: <YOUR_ACR_URL>.azurecr.io/backend-image:v1
+        - name: backend
+          image: <ACR_NAME>.azurecr.io/aistudy/backend:latest
           ports:
             - containerPort: 8080
           env:
-            - name: AZURE_KEYVAULT_URL
-              value: https://<KEY_VAULT_NAME>.vault.azure.net/
+            - name: AZURE_KEYVAULT_URI
+              value: https://<KEYVAULT_NAME>.vault.azure.net/
 ---
 apiVersion: v1
 kind: Service
@@ -29,7 +29,6 @@ spec:
   selector:
     app: backend
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 8080
-  type: LoadBalancer
+  type: ClusterIP

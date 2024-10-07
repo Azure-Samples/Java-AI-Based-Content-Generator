@@ -4,32 +4,40 @@ import com.example.content_generator.aiservice.core.NoResourceFoundException;
 import com.example.content_generator.aiservice.model.ContentRequest;
 import com.example.content_generator.aiservice.model.EmbeddingResponse;
 import com.example.content_generator.aiservice.model.Product;
-import com.example.content_generator.aiservice.service.KeyVaultService;
 import com.example.content_generator.aiservice.service.OpenAiService;
 import com.example.content_generator.aiservice.service.ProductService;
-import com.example.content_generator.aiservice.util.KeyVaultConstants;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class OpenAiServiceImpl implements OpenAiService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiServiceImpl.class);
     private final ProductService productService;
-    private final KeyVaultService keyVaultService;
 
     private final WebClient webClient;
 
-    public OpenAiServiceImpl(ProductService productService, KeyVaultService keyVaultService, WebClient.Builder webClientBuilder) {
+    @Value("${AzureOpenAiEmbeddingEndpointUrl}")
+    private String embeddingUrl;
+
+    @Value("${AzureOpenAiEndpointUrl}")
+    private String completionUrl;
+
+    @Value("${AzureOpenAiAccessKey}")
+    private String accessKey;
+
+
+    public OpenAiServiceImpl(ProductService productService, WebClient.Builder webClientBuilder) {
         this.productService = productService;
-        this.keyVaultService = keyVaultService;
 
         this.webClient = webClientBuilder
                 .filter((request, next) -> {
@@ -46,18 +54,17 @@ public class OpenAiServiceImpl implements OpenAiService {
                 .concat(getPricePrompt())
                 .replaceAll("\n", "");
 
-        try {
-            String openAIKey = keyVaultService.getSecretValue(KeyVaultConstants.AZURE_OPENAI_KEY);
-            String endpointUrl = keyVaultService.getSecretValue(KeyVaultConstants.AZURE_OPENAI_ENDPOINT_URL);
+        List<String> prompts = List.of(finalPromptMessage);
 
+        try {
             // Set up the headers
             HttpHeaders headers = new HttpHeaders();
-            headers.set("api-key", openAIKey);
+            headers.set("api-key", accessKey);
             headers.set("Content-Type", "application/json");
 
             // Make the API call
             Mono<ResponseEntity<String>> responseMono = webClient.post()
-                    .uri(endpointUrl)
+                    .uri(completionUrl)
                     .headers(httpHeaders -> httpHeaders.addAll(headers))
                     .bodyValue(getRequestData(finalPromptMessage))
                     .retrieve()
@@ -127,14 +134,13 @@ public class OpenAiServiceImpl implements OpenAiService {
     }
 
     public List<Float> generateEmbeddings(String inputData) {
-        String embeddingUrl = keyVaultService.getSecretValue(KeyVaultConstants.AZURE_OPENAI_EMBEDDING_ENDPOINT_URL);
 
         WebClient client = WebClient.create();
 
         Mono<List<Float>> responseMono = client.post()
                 .uri(embeddingUrl)
                 .header("Content-Type", "application/json")
-                .header("api-key", keyVaultService.getSecretValue(KeyVaultConstants.AZURE_OPENAI_EMBEDDING_KEY))
+                .header("api-key", accessKey)
                 .bodyValue(String.format("""
                         {
                             "input": "%s"

@@ -5,6 +5,7 @@ import com.example.content_generator.dataservice.model.ProductEmbedding;
 import com.example.content_generator.dataservice.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +19,14 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductEmbeddingService productEmbeddingService;
 
+    @Autowired
     public ProductService(ProductRepository productRepository, ProductEmbeddingService productEmbeddingService) {
         this.productRepository = productRepository;
         this.productEmbeddingService = productEmbeddingService;
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return (List<Product>) productRepository.findAll();
     }
 
     public List<Product> searchSimilarProducts(Float[] embeddings) {

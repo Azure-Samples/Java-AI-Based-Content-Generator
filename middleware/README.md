@@ -32,7 +32,7 @@ The Middleware Service provides content generation and embedding vector APIs. It
 
    * Set the required Azure environment variables to access secrets from Key Vault:
    ```bash
-   export AZURE_KEYVAULT_URL=<your_keyvault_url>
+   export AZURE_KEYVAULT_URI=<your_keyvault_url>
    ```
 
 5. **Run the Application**:
