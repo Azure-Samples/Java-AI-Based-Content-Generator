@@ -119,10 +119,28 @@ stages:
               appType: 'webAppLinux'
               # These secrets will be retrieved from Key Vault - Variable Group
               appSettings: |
-                -REACT_APP_SERVICE_BASE_URL $(MiddlewareServiceBaseUrl)
-                -REACT_APP_CLIENT_ID $(MsalAppId)
-                -REACT_APP_CONTENT_GENERATOR_ENDPOINT $(MiddlewareServiceGenerateContentEndpoint)
-                -REACT_APP_SERVICE_ACCESS_KEY $(MiddlewareServiceAccessKey)
+                [
+                  {
+                    "name": "REACT_APP_SERVICE_BASE_URL",
+                    "value": "$(MiddlewareServiceBaseUrl)",
+                    "slotSetting": false
+                  },
+                  {
+                    "name": "REACT_APP_CLIENT_ID",
+                    "value": "$(MsalAppId)",
+                    "slotSetting": false
+                  },
+                  {
+                    "name": "REACT_APP_CONTENT_GENERATOR_ENDPOINT",
+                    "value": "$(MiddlewareServiceGenerateContentEndpoint)",
+                    "slotSetting": false
+                  },
+                  {
+                    "name": "REACT_APP_SERVICE_ACCESS_KEY",
+                    "value": "$(MiddlewareServiceAccessKey)",
+                    "slotSetting": false
+                  }
+                ]
 
 #      - job: Deploy_Backend_AKS
 #        displayName: 'Deploy Backend to Azure Kubernetes Service'
