@@ -16,43 +16,43 @@ stages:
   - stage: Build
     displayName: 'Build Stage'
     jobs:
-      - job: Build_Backend
-        displayName: 'Build Backend Service'
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - checkout: self
-          - task: Maven@4
-            inputs:
-              mavenPomFile: 'backend/pom.xml'
-              mavenOptions: '-Xmx3072m'
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.17'   # JDK Version set to 17
-              jdkArchitectureOption: 'x64'
-              publishJUnitResults: true
-              testResultsFiles: '**/TEST-*.xml'
-              goals: 'clean package'
-          - publish: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
-            artifact: backend
+      # - job: Build_Backend
+      #   displayName: 'Build Backend Service'
+      #   pool:
+      #     vmImage: 'ubuntu-latest'
+      #   steps:
+      #     - checkout: self
+      #     - task: Maven@4
+      #       inputs:
+      #         mavenPomFile: 'backend/pom.xml'
+      #         mavenOptions: '-Xmx3072m'
+      #         javaHomeOption: 'JDKVersion'
+      #         jdkVersionOption: '1.17'   # JDK Version set to 17
+      #         jdkArchitectureOption: 'x64'
+      #         publishJUnitResults: true
+      #         testResultsFiles: '**/TEST-*.xml'
+      #         goals: 'clean package'
+      #     - publish: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
+      #       artifact: backend
 
-      - job: Build_Middleware
-        displayName: 'Build Middleware Service'
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - checkout: self
-          - task: Maven@4
-            inputs:
-              mavenPomFile: 'middleware/pom.xml'
-              mavenOptions: '-Xmx3072m'
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.17'   # JDK Version set to 17
-              jdkArchitectureOption: 'x64'
-              publishJUnitResults: true
-              testResultsFiles: '**/TEST-*.xml'
-              goals: 'clean package'
-          - publish: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
-            artifact: middleware
+      # - job: Build_Middleware
+      #   displayName: 'Build Middleware Service'
+      #   pool:
+      #     vmImage: 'ubuntu-latest'
+      #   steps:
+      #     - checkout: self
+      #     - task: Maven@4
+      #       inputs:
+      #         mavenPomFile: 'middleware/pom.xml'
+      #         mavenOptions: '-Xmx3072m'
+      #         javaHomeOption: 'JDKVersion'
+      #         jdkVersionOption: '1.17'   # JDK Version set to 17
+      #         jdkArchitectureOption: 'x64'
+      #         publishJUnitResults: true
+      #         testResultsFiles: '**/TEST-*.xml'
+      #         goals: 'clean package'
+      #     - publish: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
+      #       artifact: middleware
 
       - job: Build_Frontend
         displayName: 'Build Frontend Service'
@@ -71,37 +71,37 @@ stages:
     displayName: 'Deploy Stage'
     dependsOn: Build
     jobs:
-      - job: Deploy_Backend_AppService
-        displayName: 'Deploy Backend to Azure App Service'
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - download: current
-            artifact: backend
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
-              appName: '$(BackendAppServiceName)' # This will be set from Key Vault - Variable Group
-              package: '$(Pipeline.Workspace)/backend/backend.war'
-              appType: 'webAppLinux'
-              appSettings: |
-                -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
+      # - job: Deploy_Backend_AppService
+      #   displayName: 'Deploy Backend to Azure App Service'
+      #   pool:
+      #     vmImage: 'ubuntu-latest'
+      #   steps:
+      #     - download: current
+      #       artifact: backend
+      #     - task: AzureWebApp@1
+      #       inputs:
+      #         azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
+      #         appName: '$(BackendAppServiceName)' # This will be set from Key Vault - Variable Group
+      #         package: '$(Pipeline.Workspace)/backend/backend.war'
+      #         appType: 'webAppLinux'
+      #         appSettings: |
+      #           -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
 
-      - job: Deploy_Middleware_AppService
-        displayName: 'Deploy Middleware to Azure App Service'
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - download: current
-            artifact: middleware
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
-              appName: '$(MiddlewareAppServiceName)' # This will be set from Key Vault - Variable Group
-              package: '$(Pipeline.Workspace)/middleware/middleware.war'
-              appType: 'webAppLinux'
-              appSettings: |
-                -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
+      # - job: Deploy_Middleware_AppService
+      #   displayName: 'Deploy Middleware to Azure App Service'
+      #   pool:
+      #     vmImage: 'ubuntu-latest'
+      #   steps:
+      #     - download: current
+      #       artifact: middleware
+      #     - task: AzureWebApp@1
+      #       inputs:
+      #         azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
+      #         appName: '$(MiddlewareAppServiceName)' # This will be set from Key Vault - Variable Group
+      #         package: '$(Pipeline.Workspace)/middleware/middleware.war'
+      #         appType: 'webAppLinux'
+      #         appSettings: |
+      #           -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
 
       - job: Deploy_Frontend_AppService
         displayName: 'Deploy Frontend to Azure App Service'
@@ -120,27 +120,28 @@ stages:
               # These secrets will be retrieved from Key Vault - Variable Group
               appSettings: |
                 [
-                  {
-                    "name": "REACT_APP_SERVICE_BASE_URL",
-                    "value": "$(MiddlewareServiceBaseUrl)",
-                    "slotSetting": false
-                  },
-                  {
-                    "name": "REACT_APP_CLIENT_ID",
-                    "value": "$(MsalAppId)",
-                    "slotSetting": false
-                  },
-                  {
-                    "name": "REACT_APP_CONTENT_GENERATOR_ENDPOINT",
-                    "value": "$(MiddlewareServiceGenerateContentEndpoint)",
-                    "slotSetting": false
-                  },
-                  {
-                    "name": "REACT_APP_SERVICE_ACCESS_KEY",
-                    "value": "$(MiddlewareServiceAccessKey)",
-                    "slotSetting": false
-                  }
-                ]
+                                  {
+                                    "name": "REACT_APP_SERVICE_BASE_URL",
+                                    "value": "$(MiddlewareServiceBaseUrl)",
+                                    "slotSetting": false
+                                  },
+                                  {
+                                    "name": "REACT_APP_CLIENT_ID",
+                                    "value": "$(MsalAppId)",
+                                    "slotSetting": false
+                                  },
+                                  {
+                                    "name": "REACT_APP_CONTENT_GENERATOR_ENDPOINT",
+                                    "value": "$(MiddlewareServiceGenerateContentEndpoint)",
+                                    "slotSetting": false
+                                  },
+                                  {
+                                    "name": "REACT_APP_SERVICE_ACCESS_KEY",
+                                    "value": "$(MiddlewareServiceAccessKey)",
+                                    "slotSetting": false
+                                  }
+                                ]
+            
 
 #      - job: Deploy_Backend_AKS
 #        displayName: 'Deploy Backend to Azure Kubernetes Service'
