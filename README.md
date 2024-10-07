@@ -55,3 +55,19 @@ export AZURE_KEYVAULT_URL=<your_keyvault_url>
 ```
 ### Key Vault Setup
 * [Instructions for Key Vault setup, App Registration, and secret access](key_vault_setup.md)
+
+### CI/CD Pipeline Configuration
+
+We have a detailed guide on how to set up the CI/CD pipeline for this project, including building, testing, and deploying the applications to Azure services using Azure DevOps.
+
+#### [CI/CD Pipeline Setup Guide](./azure-pipelines-setup.md)
+
+The CI/CD Pipeline Setup Guide provides a step-by-step walkthrough of the YAML configuration, variable groups, and service connections required to automate the build and deployment process.
+
+You can find the guide [here](./azure-pipelines-setup.md).
+
+#### Prerequisites
+
+- Azure Subscription with access to Azure App Service and AKS.
+- Azure DevOps account for creating and running pipelines.
+- GitHub repository linked with Azure DevOps.
