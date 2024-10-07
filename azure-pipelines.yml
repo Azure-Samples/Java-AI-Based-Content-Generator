@@ -113,34 +113,13 @@ stages:
           - task: AzureWebApp@1
             inputs:
               azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
+              appType: 'webAppLinux'
               appName: '$(FrontendAppServiceName)' # This will be set from Key Vault - Variable Group
               package: '$(Pipeline.Workspace)/frontend'
               startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
-              appType: 'webAppLinux'
-              # These secrets will be retrieved from Key Vault - Variable Group
               appSettings: |
-                [
-                                  {
-                                    "name": "REACT_APP_SERVICE_BASE_URL",
-                                    "value": "$(MiddlewareServiceBaseUrl)",
-                                    "slotSetting": false
-                                  },
-                                  {
-                                    "name": "REACT_APP_CLIENT_ID",
-                                    "value": "$(MsalAppId)",
-                                    "slotSetting": false
-                                  },
-                                  {
-                                    "name": "REACT_APP_CONTENT_GENERATOR_ENDPOINT",
-                                    "value": "$(MiddlewareServiceGenerateContentEndpoint)",
-                                    "slotSetting": false
-                                  },
-                                  {
-                                    "name": "REACT_APP_SERVICE_ACCESS_KEY",
-                                    "value": "$(MiddlewareServiceAccessKey)",
-                                    "slotSetting": false
-                                  }
-                                ]
+                -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)" -REACT_APP_SERVICE_BASE_URL "$(MiddlewareServiceBaseUrl)" -REACT_APP_CLIENT_ID "$(MsalAppId)" -REACT_APP_CONTENT_GENERATOR_ENDPOINT "$(MiddlewareServiceGenerateContentEndpoint)" -REACT_APP_SERVICE_ACCESS_KEY "$(MiddlewareServiceAccessKey)"
+
             
 
 #      - job: Deploy_Backend_AKS
