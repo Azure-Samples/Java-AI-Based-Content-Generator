@@ -9,6 +9,7 @@ pool:
 
 variables:
   - group: ai-study-vg
+  - group: ai-study-secrets
 
 
 stages:
