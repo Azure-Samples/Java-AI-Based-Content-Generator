@@ -7,146 +7,121 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-# Set the variables based on fetched secrets
 variables:
-  azureSubscription: 'Labs'  # Service Connection Name
-  AzureKeyVaultName: 'aistudy1'  # Key Vault Name
+  - group: ai-study-vg
 
-  resourceGroup: '$(ResourceGroupName)'  # Fetched from Key Vault
-  acrName: '$(AcrName)'  # Fetched from Key Vault
-  backendAppName: '$(BackendAppServiceName)'  # Fetched from Key Vault
-  middlewareAppName: '$(MiddlewareAppServiceName)'  # Fetched from Key Vault
-  frontendAppName: '$(FrontendAppServiceName)'  # Fetched from Key Vault
-  AZURE_KEYVAULT_URI: 'https://$(AzureKeyVaultName).vault.azure.net/'  # Generated from Key Vault Name
-  REACT_APP_SERVICE_BASE_URL: '$(MiddlewareServiceBaseUrl)'  # Fetched from Key Vault
-  REACT_APP_CLIENT_ID: '$(MslaAppClientId)'  # Fetched from Key Vault
-  REACT_APP_CONTENT_GENERATOR_ENDPOINT: '$(MiddelwareServiceGenerateContentEndpoint)'  # Fetched from Key Vault
-  REACT_APP_SERVICE_ACCESS_KEY: '$(MiddelwareServiceAccessKey)'  # Fetched from Key Vault
 
-# Stages for fetching secrets from Key Vault
 stages:
-- stage: FetchSecrets
-  displayName: 'Fetch Secrets from Azure Key Vault'
-  jobs:
-    - job: GetSecrets
-      displayName: 'Get Secrets from Key Vault'
-      steps:
-        - task: AzureKeyVault@2
-          inputs:
-            azureSubscription: '$(azureSubscription)'  # Service Connection Name
-            KeyVaultName: '$(AzureKeyVaultName)'      # Key Vault Name
-            SecretsFilter: '*'                         # Fetch all secrets
-            RunAsPreJob: true                          # Run this step before any other jobs
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      - job: Build_Backend
+        displayName: 'Build Backend Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - task: Maven@4
+            inputs:
+              mavenPomFile: 'backend/pom.xml'
+              mavenOptions: '-Xmx3072m'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.17'   # JDK Version set to 17
+              jdkArchitectureOption: 'x64'
+              publishJUnitResults: true
+              testResultsFiles: '**/TEST-*.xml'
+              goals: 'clean package'
+          - publish: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
+            artifact: backend
 
-- stage: Build
-  displayName: 'Build Stage'
-  jobs:
-    - job: Build_Backend
-      displayName: 'Build Backend Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - checkout: self
-      - task: Maven@4
-        inputs:
-          mavenPomFile: 'backend/pom.xml'
-          mavenOptions: '-Xmx3072m'
-          javaHomeOption: 'JDKVersion'
-          jdkVersionOption: '1.17'  # JDK Version set to 17
-          jdkArchitectureOption: 'x64'
-          publishJUnitResults: true
-          testResultsFiles: '**/TEST-*.xml'
-          goals: 'clean package'
-      - publish: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
-        artifact: backend
+      - job: Build_Middleware
+        displayName: 'Build Middleware Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - task: Maven@4
+            inputs:
+              mavenPomFile: 'middleware/pom.xml'
+              mavenOptions: '-Xmx3072m'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.17'   # JDK Version set to 17
+              jdkArchitectureOption: 'x64'
+              publishJUnitResults: true
+              testResultsFiles: '**/TEST-*.xml'
+              goals: 'clean package'
+          - publish: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
+            artifact: middleware
 
-    - job: Build_Middleware
-      displayName: 'Build Middleware Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - checkout: self
-      - task: Maven@4
-        inputs:
-          mavenPomFile: 'middleware/pom.xml'
-          mavenOptions: '-Xmx3072m'
-          javaHomeOption: 'JDKVersion'
-          jdkVersionOption: '1.17'  # JDK Version set to 17
-          jdkArchitectureOption: 'x64'
-          publishJUnitResults: true
-          testResultsFiles: '**/TEST-*.xml'
-          goals: 'clean package'
-      - publish: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
-        artifact: middleware
+      - job: Build_Frontend
+        displayName: 'Build Frontend Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - script: |
+              cd frontend
+              npm install
+              npm run build
+          - publish: '$(System.DefaultWorkingDirectory)/frontend/build'
+            artifact: frontend
 
-    - job: Build_Frontend
-      displayName: 'Build Frontend Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - checkout: self
-      - script: |
-          cd frontend
-          npm install
-          npm run build
-      - publish: '$(System.DefaultWorkingDirectory)/frontend/build'
-        artifact: frontend
+  - stage: Deploy
+    displayName: 'Deploy Stage'
+    dependsOn: Build
+    jobs:
+      - job: Deploy_Backend_AppService
+        displayName: 'Deploy Backend to Azure App Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - download: current
+            artifact: backend
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
+              appName: '$(BackendAppServiceName)' # This will be set from Key Vault - Variable Group
+              package: '$(Pipeline.Workspace)/backend/backend.war'
+              appType: 'webAppLinux'
+              appSettings: |
+                -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
 
-- stage: Deploy
-  displayName: 'Deploy Stage'
-  dependsOn: Build
-  jobs:
-    - job: Deploy_Backend_AppService
-      displayName: 'Deploy Backend to Azure App Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - download: current
-        artifact: backend
-      - task: AzureWebApp@1
-        inputs:
-          azureSubscription: '$(azureSubscription)'
-          appName: '$(backendAppName)'  # Ensure this app exists in Azure
-          package: '$(Pipeline.Workspace)/backend/backend.war'
-          appType: 'webAppLinux'  # Specify appType for Web App on Linux
-          appSettings: |
-            -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
+      - job: Deploy_Middleware_AppService
+        displayName: 'Deploy Middleware to Azure App Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - download: current
+            artifact: middleware
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
+              appName: '$(MiddlewareAppServiceName)' # This will be set from Key Vault - Variable Group
+              package: '$(Pipeline.Workspace)/middleware/middleware.war'
+              appType: 'webAppLinux'
+              appSettings: |
+                -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
 
-    - job: Deploy_Middleware_AppService
-      displayName: 'Deploy Middleware to Azure App Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - download: current
-        artifact: middleware
-      - task: AzureWebApp@1
-        inputs:
-          azureSubscription: '$(azureSubscription)'
-          appName: '$(middlewareAppName)'  # Ensure this app exists in Azure
-          package: '$(Pipeline.Workspace)/middleware/middleware.war'
-          appType: 'webAppLinux'  # Specify appType for Web App on Linux
-          appSettings: |
-            -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)"
-
-    - job: Deploy_Frontend_AppService
-      displayName: 'Deploy Frontend to Azure App Service'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - download: current
-        artifact: frontend
-      - task: AzureWebApp@1
-        inputs:
-          azureSubscription: '$(azureSubscription)'
-          appName: '$(frontendAppName)'  # Ensure this app exists in Azure
-          package: '$(Pipeline.Workspace)/frontend'
-          startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
-          appType: 'webAppLinux'  # Specify appType for Web App on Linux
-          appSettings: |
-            -REACT_APP_SERVICE_BASE_URL "$(REACT_APP_SERVICE_BASE_URL)"
-            -REACT_APP_CLIENT_ID "$(REACT_APP_CLIENT_ID)"
-            -REACT_APP_CONTENT_GENERATOR_ENDPOINT "$(REACT_APP_CONTENT_GENERATOR_ENDPOINT)"
-            -REACT_APP_SERVICE_ACCESS_KEY "$(REACT_APP_SERVICE_ACCESS_KEY)"
+      - job: Deploy_Frontend_AppService
+        displayName: 'Deploy Frontend to Azure App Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - download: current
+            artifact: frontend
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '$(AzureSubscription)' # This will be set from Variable Group
+              appName: '$(FrontendAppServiceName)' # This will be set from Key Vault - Variable Group
+              package: '$(Pipeline.Workspace)/frontend'
+              startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
+              appType: 'webAppLinux'
+              # These secrets will be retrieved from Key Vault - Variable Group
+              appSettings: |
+                -REACT_APP_SERVICE_BASE_URL "$(MiddlewareServiceBaseUrl)" 
+                -REACT_APP_CLIENT_ID "$(MsalAppId)"
+                -REACT_APP_CONTENT_GENERATOR_ENDPOINT "$(MiddlewareServiceGenerateContentEndpoint)"
+                -REACT_APP_SERVICE_ACCESS_KEY "$(MiddlewareServiceAccessKey)"
 
 #      - job: Deploy_Backend_AKS
 #        displayName: 'Deploy Backend to Azure Kubernetes Service'
@@ -157,8 +132,8 @@ stages:
 #          artifact: backend
 #        - script: |
 #            az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
-#            docker build -t $(acrName).azurecr.io/aistudy/backend:latest backend/
-#            docker push $(acrName).azurecr.io/aistudy/backend:latest
+#            docker build -t $(AcrName).azurecr.io/aistudy/backend:latest backend/
+#            docker push $(AcrName).azurecr.io/aistudy/backend:latest
 #            kubectl apply -f backend/backend-deployment.yml
 #
 #      - job: Deploy_Middleware_AKS
@@ -170,8 +145,8 @@ stages:
 #          artifact: middleware
 #        - script: |
 #           az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
-#           docker build -t $(acrName).azurecr.io/aistudy/middleware:latest middleware/
-#           docker push $(acrName).azurecr.io/aistudy/middleware:latest
+#           docker build -t $(AcrName).azurecr.io/aistudy/middleware:latest middleware/
+#           docker push $(AcrName).azurecr.io/aistudy/middleware:latest
 #           kubectl apply -f middleware/middleware-deployment.yml
 #
 #      - job: Deploy_Frontend_AKS
@@ -183,6 +158,6 @@ stages:
 #          artifact: frontend
 #        - script: |
 #           az aks get-credentials --resource-group $(resourceGroup) --name <ClusterName>
-#           docker build -t $(acrName).azurecr.io/aistudy/frontend:latest frontend/
-#           docker push $(acrName).azurecr.io/aistudy/frontend:latest
+#           docker build -t $(AcrName).azurecr.io/aistudy/frontend:latest frontend/
+#           docker push $(AcrName).azurecr.io/aistudy/frontend:latest
 #           kubectl apply -f frontend/frontend-deployment.yml
