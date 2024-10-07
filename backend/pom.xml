@@ -59,7 +59,7 @@
         <!--   Spring Cloud Azure     -->
         <dependency>
             <groupId>com.azure.spring</groupId>
-            <artifactId>spring-cloud-azure-starter-storage</artifactId>
+            <artifactId>spring-cloud-azure-starter-storage-blob</artifactId>
         </dependency>
         <dependency>
             <groupId>com.azure.spring</groupId>
@@ -85,6 +85,50 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <image>
+                        <name>aistudy.azurecr.io/backend</name>
+                    </image>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-webapp-maven-plugin</artifactId>
+                <version>2.13.0</version>
+                <!--       Refer: https://github.com/microsoft/azure-maven-plugins/wiki/Azure-Web-App:-Configuration-Details         -->
+                <configuration>
+                    <!-- Optional: If not mentioned, it will pick the default subscription -->
+                    <subscriptionId>SUBSCRIPTION_ID</subscriptionId> <!-- If it is not mentioned it will pick default -->
+                    <resourceGroup>RESOURCE_GROUP_NAME</resourceGroup>
+                    <appName>APP_SERVICE_NAME</appName>
+                    <region>REGION</region>
+                    <pricingTier>B1</pricingTier>
+                    <runtime>
+                        <os>Linux</os>
+                        <javaVersion>Java 17</javaVersion>
+                        <webContainer>Tomcat 10.0</webContainer>
+                    </runtime>
+                    <deployment>
+                        <resources>
+                            <resource>
+                                <directory>${project.basedir}/target</directory>
+                                <includes>
+                                    <include>*.war</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                    </deployment>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <release>17</release>
+                </configuration>
             </plugin>
         </plugins>
     </build>
