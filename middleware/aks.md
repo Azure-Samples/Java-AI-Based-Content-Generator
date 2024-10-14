@@ -8,46 +8,9 @@ This guide covers the steps to build, push, and deploy a Java application to Azu
 * Maven installed
 * Docker installed
 
+## Reference - [AKS](../aks.md)
 
-## Step 1: Build the Java Application
-First, build the application using Maven:
-
-```bash
-./mvnw clean package
-```
-This command will generate a WAR file in the `target` directory.
-
-## Step 2: Set Up AKS and ACR (Optional)
-If you don't already have an Azure Kubernetes Service (AKS) and Azure Container Registry (ACR) set up, you can follow this optional step to create them.
-
-### Create AKS Cluster and ACR
-
-To create an AKS cluster and ACR, use the following commands:
-
-1. **Create a resource group:**
-   ```bash
-   az group create --name <YOUR_RESOURCE_GROUP> --location <LOCATION>
-   ```
-
-2. **Create an ACR:**
-   ```bash
-   az acr create --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_ACR_NAME> --sku Basic
-   ```
-
-3. **Create an AKS cluster:**
-   ```bash
-   az aks create \
-    --resource-group <YOUR_RESOURCE_GROUP> \
-    --name <YOUR_AKS_CLUSTER_NAME> \
-    --attach-acr <YOUR_ACR_NAME> \
-    --enable-managed-identity \
-    --enable-oidc-issuer \
-    --enable-workload-identity \
-    --generate-ssh-keys
-   ```
-Once the AKS cluster and ACR are set up, proceed with the next steps.
-
-## Step 3: Build and Push Docker Image
+## Build and Push Docker Image
 
 ### Update Environment Variables in Dockerfile
 
@@ -59,42 +22,34 @@ Before building the Docker image, make sure that the environment variables in yo
 To build the Docker image, use the following command:
 
 ```bash
-# ACR Login
-az acr login --name <ACR_NAME>
-
-# Set your image build version
-VERSION=1.0.1
-
 # Build docker image
-docker build -t aistudy/middleware-service:${VERSION} .
+docker build -t <ACR_Name>.azurecr.io/aistudy/middleware-service:latest .
 
 ```
-
 
 ### Push Docker Image
 Push the Docker image to your ACR:
 
 ```bash
-# Tag the build image into acr repo
-docker tag aistudy/middleware-service:${VERSION} <ACR_Name>.azurecr.io/aistudy/middleware-service:${VERSION}
-
 docker push <ACR_Name>.azurecr.io/middleware-service:latest
 ```
 
-## Step 4: Run Docker Image Locally (Optional)
+## Run Docker Image Locally (Optional)
 If you want to test the Docker image locally, use the following commands:
 
-### Build Docker Image Locally
-```bash
-docker build -t cg-middleware .
-```
+
 ### Run Docker Image Locally
 ```bash
-docker run -p 8080:8081 cg-middleware
+docker run -p 8081:8080 <ACR_Name>.azurecr.io/aistudy/middleware-service:latest
 ```
 You can access the application at **http://localhost:8081**.
 
-## Step 5: Deploy to AKS
+## Deploy to AKS
+
+### Update Variables in [`middleware-deployment.yml`](middleware-deployment.yml)
+
+Before run the Docker image in K8S, make sure that the environment variables in your [`middleware-deployment.yml`](middleware-deployment.yml) are up to date. These variables are critical for your application to interact with Azure services like ACR_NAME and AZURE_KEYVAULT_URI.
+
 ### Apply Kubernetes Deployment Locally
 First, apply the Kubernetes deployment using the following command:
 
@@ -127,15 +82,3 @@ kubectl get deployments
 kubectl get services 
 ```
 This will show you the status of the deployments and services in your AKS cluster.
-
-## Step 6: Destroy Resources (Optional)
-
-If you want to clean up and destroy the resources after you're done, you can follow these steps:
-
-**Delete Resource Group**
-To delete the resource group, which will also delete all associated resources, use the following command:
-   ```bash 
-   az group delete --name <YOUR_RESOURCE_GROUP> --yes --no-wait
-   ```
-This will completely remove your AKS cluster, ACR, and all resources associated with the resource group.
-With these additional instructions, users will have the option to destroy all resources created for the deployment, ensuring a clean environment if needed.

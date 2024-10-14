@@ -29,8 +29,8 @@ spring:
 ## This will avoid conflicts with other Java services running on the same port.
 ## For example, set the port to 8081 if the default port 8080 is in use.
 
-server:
-  port: 8081
+#server:
+#  port: 8081
 
 #logging:      # Enable Debug Log
 #  level:
