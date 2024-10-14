@@ -10,55 +10,23 @@ This guide covers the steps to build, push, and deploy a React application to Az
 * NodeJS installed
 
 
-## Step 1: Build the React Application
-First, build the React application using `npm` or `yarn`. This will generate a production-ready build of your app.
-
-```bash
-npm run build
-```
-This command will generate a `build` directory containing the static files of your React application.
-
-## Step 2: Set Up AKS and ACR (Optional)
-If you don't already have an Azure Kubernetes Service (AKS) and Azure Container Registry (ACR) set up, you can follow this optional step to create them.
-
-### Create AKS Cluster and ACR
-
-To create an AKS cluster and ACR, use the following commands:
-
-1. **Create a resource group:**
-   ```bash
-   az group create --name <YOUR_RESOURCE_GROUP> --location <LOCATION>
-   ```
-
-2. **Create an ACR:**
-   ```bash
-   az acr create --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_ACR_NAME> --sku Basic
-   ```
-
-3. **Create an AKS cluster:**
-   ```bash
-   az aks create --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_AKS_CLUSTER_NAME> --node-count 1 --enable-managed-identity --attach-acr <YOUR_ACR_NAME>
-   ```
-Once the AKS cluster and ACR are set up, proceed with the next steps.
+## Reference - [AKS](../aks.md)
 
 
-## Step 3: Build and Push Docker Image
+## Build and Push Docker Image
 
 ### Update Environment Variables in Dockerfile
 
 Before building the Docker image, make sure that the environment variables in your [Dockerfile](Dockerfile) are up to date. These variables are critical for your application to interact with Azure services like Cosmos DB, Blob Storage, and MongoDB.
 
 [**_Reference_**](env_variables.md)
+[**_env_**](.env.example)
 
 ### Build Docker Image
 To build the Docker image, use the following command:
 
 ```bash
-docker build --build-arg REACT_APP_SERVICE_BASE_URL=http://your-service-base-url \
-             --build-arg REACT_APP_CLIENT_ID=your-client-id \
-             --build-arg REACT_APP_CONTENT_GENERATOR_ENDPOINT=/api/v1/generate/content \
-             --build-arg REACT_APP_SERVICE_ACCESS_KEY=your-access-key \
-             -t <YOUR_ACR_NAME>.azurecr.io/frontend-image:v1 .
+docker build -t <ACR_NAME>.azurecr.io/aistudy/frontend:latest .
 ```
 
 ### Login to Azure Container Registry (ACR)
@@ -67,13 +35,13 @@ Before pushing the Docker image to ACR, you need to log in using your ACR creden
 1. **Retrieve ACR credentials**:
 
     ```bash
-    az acr credential show --name <YOUR_ACR_NAME>
+    az acr credential show --name <ACR_NAME>
     ```
 
 2. **Log in to ACR**:
 
     ```bash
-    docker login <YOUR_ACR_NAME>.azurecr.io
+    docker login <ACR_NAME>.azurecr.io
     ```
 
 
@@ -81,23 +49,25 @@ Before pushing the Docker image to ACR, you need to log in using your ACR creden
 Push the Docker image to your ACR:
 
 ```bash
-docker push <YOUR_ACR_NAME>.azurecr.io/frontend-image:v1
+docker push <YOUR_ACR_NAME>.azurecr.io/aistudy/frontend:latest
 ```
 
-## Step 4: Run Docker Image Locally (Optional)
+## Run Docker Image Locally (Optional)
 If you want to test the Docker image locally, use the following commands:
 
-### Build Docker Image Locally
-```bash
-docker build -t cg-frontend .
-```
+
 ### Run Docker Image Locally
 ```bash
-docker run -p 80:80 cg-frontend
+docker run -p 80:80 <YOUR_ACR_NAME>.azurecr.io/aistudy/frontend:latest
 ```
-You can access the application at **http://localhost:80**.
+You can access the application at **http://localhost**.
 
-## Step 5: Deploy to AKS
+## Deploy to AKS
+
+### Update Variables in [`frontend-deployment.yml`](frontend-deployment.yml)
+
+Before run the Docker image in K8S, make sure that the environment variables in your [`frontend-deployment.yml`](frontend-deployment.yml) are up to date. These variables are critical for your application to interact with Azure services like ACR_NAME, MIDDLEWARE_SERVICE_BASE_URL, APP_CLIENT_ID, CONTENT_GENERATOR_ENDPOINT, MIDDLEWARE_SERVICE_ACCESS_KEY and AZURE_KEYVAULT_URI (refer [env](.env.example)).
+
 ### Apply Kubernetes Deployment Locally
 First, apply the Kubernetes deployment using the following command:
 
@@ -114,34 +84,10 @@ To deploy the application to AKS, ensure your kubectl is connected to your AKS c
     ```
 2. **AKS Login**
    ```bash
-   az aks get-credentials --resource-group <YOUR_RESOURCE_GROUP> --name <YOUR_AKS_CLUSTER_NAME>
+   az aks get-credentials --resource-group <YOUR_RESOURCE_GROUP> --name <AKS_NAME>
    ```
 
 ```bash
 kubectl apply -f frontend-deployment.yml
 ```
 This will deploy your application to the AKS cluster.
-
-
-## Step 6: Destroy Resources (Optional)
-
-If you want to clean up and destroy the resources after you're done, you can follow these steps:
-
-1. **Delete AKS Cluster**
-   To delete the AKS cluster, use the following command:
-   ```bash 
-   az aks delete --name <YOUR_AKS_CLUSTER_NAME> --resource-group <YOUR_RESOURCE_GROUP> --yes --no-wait
-   ```
-2. **Delete ACR (Azure Container Registry)**
-   To delete the ACR, run this command:
-   ```bash 
-   az acr delete --name <YOUR_ACR_NAME> --resource-group <YOUR_RESOURCE_GROUP>
-   ```
-3. **Delete Resource Group**
-   To delete the resource group, which will also delete all associated resources, use the following command:
-   ```bash 
-   az group delete --name <YOUR_RESOURCE_GROUP> --yes --no-wait
-   ```
-This will completely remove your AKS cluster, ACR, and all resources associated with the resource group.
-With these additional instructions, users will have the option to destroy all resources created for the deployment, ensuring a clean environment if needed.
-

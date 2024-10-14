@@ -19,7 +19,7 @@ spec:
             - containerPort: 8080
           env:
             - name: AZURE_KEYVAULT_URI
-              value: https://<KEYVAULT_NAME>.vault.azure.net/
+              value: <AZURE_KEYVAULT_URI>
 ---
 apiVersion: v1
 kind: Service

@@ -32,6 +32,55 @@ variables:
 
 ![PipelinePermission.png](images/PipelinePermission.png)
 
+**Variable Groups**
+
+We will utilize variable groups to manage our configurations efficiently. In particular, we will set the `DeploymentTarget` variable in the variable group `ai-study-vg` to determine whether we are deploying to AKS or App Service.
+
+* **Adding Variables** 
+
+  * `DeploymentTarget`: This variable will dictate the target deployment, allowing us to switch between AKS and App Service as needed.
+    ![VG_1.png](images/VG_1.png)
+
+### Configuring Service Connection for Azure Container Registry (ACR)
+
+Before deploying your applications to Azure Kubernetes Service (AKS), it's essential to set up a service connection for Azure Container Registry (ACR). This allows Azure DevOps to authenticate and pull images from your ACR. Follow these steps to configure the service connection:
+
+#### Step 1: Access Your Azure Container Registry
+
+  * Navigate to Azure Portal and find your Azure Container Registry resource.
+  * In the left-hand menu, select Access keys.
+
+#### Step 2: Copy the Required Values
+
+In the Access keys section, you will find two important values:
+
+  * Login Server: This will typically be in the format `youracrname.azurecr.io`.
+  * Admin User Password: This is used for authentication.
+
+
+#### Step 3: Create the Service Connection
+
+1. In your Azure DevOps project, navigate to **Project Settings** > **Service connections**.
+2. Click on New service connection and select **Docker Registry**.
+3. Choose **Others** as the Docker Registry type.
+4. Enter the following details:
+   * **Registry**: $(`DockerRegistry`) (the variable you created in `ai-study-vg`)
+   * **Username**: Your ACR username (usually the name of your ACR)
+   * **Password**: Use the **Admin User Password** you copied earlier.
+5. Name your service connection (e.g., `AI Study Container`) and save it.
+
+
+#### Step 4: Store the Values in Variable Group
+
+1. Go to your Azure DevOps project.
+2. Select **Pipelines** > **Library**.
+3. Find the variable group `ai-study-vg`.
+4. Add a new variable named `DockerRegistry` and service connection name (e.g., `AI Study Container`).
+
+
+Now your Azure DevOps pipeline can authenticate to ACR and pull the necessary images for your AKS deployments.
+
+
 ### Build Stage
 Each of the services (`backend`, `middleware`, and `frontend`) is built in parallel:
 
@@ -86,17 +135,16 @@ jobs:
   - job: Deploy_Backend_AKS
     displayName: 'Deploy Backend to AKS'
     steps:
-      - script: |
-          az aks get-credentials --resource-group $(ResourceGroup) --name $(AKSClusterName)
-          docker build -t $(AcrName).azurecr.io/aistudy/backend:latest backend/
-          docker push $(AcrName).azurecr.io/aistudy/backend:latest
-          kubectl apply -f backend/backend-deployment.yml
+      - task: KubernetesManifest@1
+        inputs:
+          action: 'deploy'
+          connectionType: 'azureResourceManager'
+          azureSubscriptionConnection: '$(AzureSubscription)'
+          azureResourceGroup: '$(ResourceGroupName)'
+          kubernetesCluster: '$(AKS)'
+          manifests: 'backend/backend-deployment.yml'
 
 ```
-
-* `az aks get-credentials`: Fetches the Kubernetes credentials for the specified AKS cluster.
-* `docker build` and `docker push`: Builds and pushes Docker images to the ACR.
-* `kubectl apply`: Deploys the updated image to AKS using the provided deployment file.
 
 ### GitHub Repository Integration
 To integrate a GitHub repository in Azure DevOps, navigate to **Project Settings > Repos > GitHub Connections** and add your GitHub repository. This allows you to trigger the pipeline automatically on code changes.

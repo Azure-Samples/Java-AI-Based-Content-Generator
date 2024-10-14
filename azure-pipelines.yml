@@ -31,8 +31,19 @@ stages:
               publishJUnitResults: true
               testResultsFiles: '**/TEST-*.xml'
               goals: 'clean package'
-          - publish: '$(System.DefaultWorkingDirectory)/backend/target/backend.war'
+          - publish: 'backend/target/backend.war'
             artifact: backend
+
+            # Docker build and push using the published WAR file
+          - task: Docker@2
+            condition: eq(variables['DeploymentTarget'], 'AKS')
+            inputs:
+              containerRegistry: '$(DockerRegistry)'
+              repository: '$(AcrName).azurecr.io/aistudy/backend'
+              command: 'buildAndPush'
+              Dockerfile: 'backend/Dockerfile'
+              buildContext: 'backend'
+              tags: 'latest'
 
       - job: Build_Middleware
         displayName: 'Build Middleware Service'
@@ -50,24 +61,61 @@ stages:
               publishJUnitResults: true
               testResultsFiles: '**/TEST-*.xml'
               goals: 'clean package'
-          - publish: '$(System.DefaultWorkingDirectory)/middleware/target/middleware.war'
+          - publish: 'middleware/target/middleware.war'
             artifact: middleware
+
+          # Docker build and push using the published WAR file
+          - task: Docker@2
+            condition: eq(variables['DeploymentTarget'], 'AKS')
+            inputs:
+              containerRegistry: '$(DockerRegistry)'
+              repository: '$(AcrName).azurecr.io/aistudy/middleware'
+              command: 'buildAndPush'
+              Dockerfile: 'middleware/Dockerfile'
+              buildContext: 'middleware'
+              tags: 'latest'
 
       - job: Build_Frontend
         displayName: 'Build Frontend Service'
+        condition: eq(variables['DeploymentTarget'], 'AppService')
         pool:
           vmImage: 'ubuntu-latest'
         steps:
           - checkout: self
-          - script: |
-              cd frontend
-              npm install
-              npm run build
-          - publish: '$(System.DefaultWorkingDirectory)/frontend/build'
+          # Install dependencies and build the React app
+          - task: Npm@1
+            inputs:
+              command: 'install'
+              workingDir: 'frontend'
+
+          - task: Npm@1
+            inputs:
+              command: 'custom'
+              workingDir: 'frontend'
+              customCommand: 'run build'
+
+          - publish: 'frontend/build'
             artifact: frontend
 
-  - stage: Deploy
-    displayName: 'Deploy Stage'
+      - job: Build_Frontend_AKS
+        displayName: 'Build Frontend Service'
+        condition: eq(variables['DeploymentTarget'], 'AKS')
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - task: Docker@2
+            inputs:
+              containerRegistry: '$(DockerRegistry)'
+              repository: '$(AcrName).azurecr.io/aistudy/frontend'
+              command: 'buildAndPush'
+              Dockerfile: 'frontend/Dockerfile'
+              buildContext: 'frontend'
+              tags: 'latest'
+
+  - stage: Deploy_AppServices
+    displayName: 'Deploy to Azure App Services'
+    condition: eq(variables['DeploymentTarget'], 'AppService')
     dependsOn: Build
     jobs:
       - job: Deploy_Backend_AppService
@@ -117,45 +165,53 @@ stages:
               package: '$(Pipeline.Workspace)/frontend'
               startUpCommand: 'pm2 serve /home/site/wwwroot/build --no-daemon --spa'
               appSettings: |
-                -AZURE_KEYVAULT_URI "$(AZURE_KEYVAULT_URI)" -REACT_APP_SERVICE_BASE_URL "$(MiddlewareServiceBaseUrl)" -REACT_APP_CLIENT_ID "$(MsalAppId)" -REACT_APP_CONTENT_GENERATOR_ENDPOINT "$(MiddlewareServiceGenerateContentEndpoint)" -REACT_APP_SERVICE_ACCESS_KEY "$(MiddlewareServiceAccessKey)"
+                -REACT_APP_SERVICE_BASE_URL "$(MiddlewareServiceBaseUrl)" -REACT_APP_CLIENT_ID "$(MsalAppId)" -REACT_APP_CONTENT_GENERATOR_ENDPOINT "$(MiddlewareServiceGenerateContentEndpoint)" -REACT_APP_SERVICE_ACCESS_KEY "$(MiddlewareServiceAccessKey)"
 
-            
-      # Deploying to Azure Kubernetes Service
-#      - job: Deploy_Backend_AKS
-#        displayName: 'Deploy Backend to Azure Kubernetes Service'
-#        pool:
-#          vmImage: 'ubuntu-latest'
-#        steps:
-#        - download: current
-#          artifact: backend
-#        - script: |
-#            az aks get-credentials --resource-group $(resourceGroup) --name $(BackendAppServiceName)
-#            docker build -t $(AcrName).azurecr.io/aistudy/backend:latest backend/
-#            docker push $(AcrName).azurecr.io/aistudy/backend:latest
-#            kubectl apply -f backend/backend-deployment.yml
-#
-#      - job: Deploy_Middleware_AKS
-#        displayName: 'Deploy Middleware to Azure Kubernetes Service'
-#        pool:
-#         vmImage: 'ubuntu-latest'
-#        steps:
-#        - download: current
-#          artifact: middleware
-#        - script: |
-#           az aks get-credentials --resource-group $(resourceGroup) --name $(MiddlewareAppServiceName)
-#           docker build -t $(AcrName).azurecr.io/aistudy/middleware:latest middleware/
-#           docker push $(AcrName).azurecr.io/aistudy/middleware:latest
-#           kubectl apply -f middleware/middleware-deployment.yml
-#
-#      - job: Deploy_Frontend_AKS
-#        displayName: 'Deploy Frontend to Azure Kubernetes Service'
-#        pool:
-#         vmImage: 'ubuntu-latest'
-#        steps:
-#        - download: current
-#          artifact: frontend
-#        - script: |
-#           az aks get-credentials --resource-group $(resourceGroup) --name $(FrontendAppServiceName)
-#           docker build -t $(AcrName).azurecr.io/aistudy/frontend:latest frontend/
-#           docker push $(AcrName).azurecr.io/aistudy/frontend:latest
-#           kubectl apply -f frontend/frontend-deployment.yml
+  # Deploying to Azure Kubernetes Service
+  - stage: Deploy_AKS
+    displayName: 'Deploy to Azure Kubernetes Service'
+    condition: eq(variables['DeploymentTarget'], 'AKS')
+    dependsOn: Deploy_AppServices
+    jobs:
+      - job: Deploy_Backend_AKS
+        displayName: 'Deploy Backend to Azure Kubernetes Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: KubernetesManifest@1
+            inputs:
+              action: 'deploy'
+              connectionType: 'azureResourceManager'
+              azureSubscriptionConnection: '$(AzureSubscription)'
+              azureResourceGroup: '$(ResourceGroupName)'
+              kubernetesCluster: '$(AKS)'
+              manifests: 'backend/backend-deployment.yml'
+
+      - job: Deploy_Middleware_AKS
+        displayName: 'Deploy Middleware to Azure Kubernetes Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: KubernetesManifest@1
+            inputs:
+              action: 'deploy'
+              connectionType: 'azureResourceManager'
+              azureSubscriptionConnection: '$(AzureSubscription)'
+              azureResourceGroup: '$(ResourceGroupName)'
+              kubernetesCluster: '$(AKS)'
+              manifests: 'middleware/middleware-deployment.yml'
+
+      - job: Deploy_Frontend_AKS
+        displayName: 'Deploy Frontend to Azure Kubernetes Service'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: KubernetesManifest@1
+            inputs:
+              action: 'deploy'
+              connectionType: 'azureResourceManager'
+              azureSubscriptionConnection: '$(AzureSubscription)'
+              azureResourceGroup: '$(ResourceGroupName)'
+              kubernetesCluster: '$(AKS)'
+              manifests: 'frontend/frontend-deployment.yml'
+      
