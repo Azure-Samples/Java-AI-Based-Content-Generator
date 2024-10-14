@@ -7,12 +7,6 @@ WORKDIR /app
 # Copy the WAR file into the container
 COPY target/middleware.war /app/middleware.war
 
-# Set environment variables
-ARG AZURE_KEYVAULT_URI
-
-# Add environment variables
-ENV AZURE_KEYVAULT_URI=${AZURE_KEYVAULT_URI}
-
 # Expose the port your application will run on
 EXPOSE 8080
 

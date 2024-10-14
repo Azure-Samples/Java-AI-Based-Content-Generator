@@ -70,18 +70,25 @@ Ensure that you have the **Azure Web App Maven Plugin** set up in your `pom.xml`
         <plugin>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-webapp-maven-plugin</artifactId>
-            <version>2.0.0</version> <!-- Adjust the version as needed -->
+            <version>2.13.0</version>
+            <!-- Refer: https://github.com/microsoft/azure-maven-plugins/wiki/Azure-Web-App:-Configuration-Details -->
+
             <configuration>
                 <!-- Optional: If not mentioned, it will pick the default subscription -->
-                <subscriptionId>SUBSCRIPTION_ID</subscriptionId> <!-- If it is not mentioned it will pick default -->
-                <resourceGroup>RESOURCE_GROUP_NAME</resourceGroup>
-                <appName>APP_SERVICE_NAME</appName>
-                <region>REGION</region>
-                <pricingTier>B1</pricingTier> <!-- Choose your pricing tier -->
+                <!--                    <subscriptionId>SUBSCRIPTION_ID</subscriptionId>-->
+
+                <resourceGroup>BACKEND_RESOURCE_GROUP</resourceGroup>
+                <appName>BACKEND_APP_SERVICE_NAME</appName>
+
+                <!-- Required only when creating a new Azure App Service. Not needed for updates. -->
+                <!--                    <region>REGION</region>-->
+                <!--                    <pricingTier>B1</pricingTier>-->
+
+
                 <runtime>
-                    <os>linux</os> <!-- or windows -->
-                    <javaVersion>Java 17</javaVersion> <!-- Choose Java version -->
-                    <webContainer>Tomcat 10.0</webContainer> <!-- Specify Tomcat version -->
+                    <os>Linux</os>
+                    <javaVersion>Java 17</javaVersion>
+                    <webContainer>Tomcat 10.0</webContainer>
                 </runtime>
                 <deployment>
                     <resources>

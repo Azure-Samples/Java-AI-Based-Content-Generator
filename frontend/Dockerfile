@@ -1,9 +1,10 @@
 # Stage 1: Build the React application
-FROM node:18 AS build
+FROM --platform=linux/amd64  mcr.microsoft.com/azurelinux/base/nodejs:20.14 as build
+
 WORKDIR /app
 
 # Copy package.json and install dependencies
-COPY package.json package-lock.json ./
+COPY package.json ./
 RUN npm install
 
 # Copy all files and build the application
@@ -11,7 +12,8 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve the React app using NGINX
-FROM nginx:alpine
+FROM --platform=linux/amd64  mcr.microsoft.com/azurelinux/base/nginx:1.25
+
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Expose port 80 to serve the app
